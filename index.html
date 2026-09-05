@@ -1,0 +1,1087 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>The Route — Journey</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Barlow+Condensed:wght@400;600;700;800&family=IBM+Plex+Mono:wght@400;500;600&family=Barlow:wght@300;400;500&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --bg:#0A0C10;
+    --panel:#111318;
+    --panel-border:#1E2229;
+    --text:#FFFFFF;
+    --text-dim:#8A8F9A;
+    --road:#23262b;
+    --road-edge:#34383f;
+    --lane:#E0A020;
+    --amber:#E0A020;
+    --cyan:#B07010;
+    --green:#E0A020;
+    --intern:#3FA9F5;
+    --container-w:920px;
+  }
+
+  *{box-sizing:border-box;}
+  html{scroll-behavior:smooth;}
+  body{
+    margin:0;
+    background:var(--bg);
+    color:var(--text);
+    font-family:'Barlow',sans-serif;
+    overflow-x:hidden;
+  }
+
+  /* subtle asphalt texture */
+  body::before{
+    content:"";
+    position:fixed; inset:0;
+    background-image:
+      radial-gradient(circle at 20% 10%, rgba(255,255,255,0.03), transparent 40%),
+      radial-gradient(circle at 80% 60%, rgba(176,112,16,0.04), transparent 45%);
+    pointer-events:none;
+    z-index:0;
+  }
+
+  a{color:inherit;}
+
+  /* ---------- Top bar ---------- */
+  .top-bar{
+    position:sticky; top:0; z-index:50;
+    display:flex; align-items:center; justify-content:space-between;
+    padding:16px clamp(16px,4vw,48px);
+    background:rgba(11,13,16,0.85);
+    backdrop-filter:blur(10px);
+    border-bottom:1px solid var(--panel-border);
+  }
+  .back-link{
+    display:inline-flex; align-items:center; gap:8px;
+    font-family:'IBM Plex Mono',monospace;
+    font-size:12px; letter-spacing:0.08em; text-transform:uppercase;
+    color:var(--text-dim); text-decoration:none;
+    padding:8px 14px; border:1px solid var(--panel-border); border-radius:999px;
+    transition:border-color .2s ease, color .2s ease;
+  }
+  .back-link:hover{ color:var(--text); border-color:var(--amber); }
+  .top-bar .odo{
+    font-family:'IBM Plex Mono',monospace; font-size:12px; color:var(--text-dim);
+    letter-spacing:0.05em;
+  }
+
+  /* ---------- Hero ---------- */
+  .hero{
+    position:relative; z-index:1;
+    max-width:var(--container-w); margin:0 auto;
+    padding:clamp(48px,8vw,88px) clamp(16px,4vw,24px) clamp(24px,5vw,48px);
+    text-align:center;
+  }
+  .hero .eyebrow{
+    font-family:'IBM Plex Mono',monospace; font-size:12px;
+    letter-spacing:0.25em; text-transform:uppercase; color:var(--amber);
+    margin:0 0 14px;
+  }
+  .hero h1{
+    font-family:'Barlow Condensed',sans-serif; font-weight:700;
+    font-size:clamp(40px,7vw,72px); line-height:0.98; margin:0 0 16px;
+    letter-spacing:0.01em;
+  }
+  .hero p{
+    color:var(--text-dim); font-size:16px; line-height:1.6;
+    max-width:520px; margin:0 auto;
+  }
+  .hero .legend{
+    display:flex; flex-wrap:wrap; gap:10px 22px; justify-content:center;
+    margin-top:28px; font-family:'IBM Plex Mono',monospace; font-size:11px;
+    letter-spacing:0.05em; color:var(--text-dim);
+  }
+  .legend span{ display:inline-flex; align-items:center; gap:7px; }
+  .legend i{ width:9px; height:9px; border-radius:2px; display:inline-block; }
+
+  /* ---------- Road wrap ---------- */
+  .road-wrap{
+    position:relative;
+    max-width:1100px; margin:0 auto;
+    padding:0 clamp(12px,4vw,24px) 40px;
+  }
+  #roadSvg{
+    position:absolute; top:0; left:0;
+    width:100%; height:100%;
+    z-index:0; pointer-events:none;
+  }
+  .nodes{ position:relative; z-index:1; }
+
+  .node{
+    position:relative;
+    display:flex;
+    justify-content:center;
+  }
+
+  /* marker (sign post) */
+  .marker{
+    position:absolute; left:50%; top:50%;
+    width:14px; height:14px; border-radius:50%;
+    background:var(--bg); border:3px solid var(--cyan);
+    transform:translate(-50%,-50%);
+    z-index:2; transition:transform .2s ease;
+  }
+  .node.college .marker{ border-color:var(--amber); width:16px; height:16px; }
+  .node.finish .marker{ border-color:var(--green); }
+
+  /* connector from marker to card */
+  .connector{
+    position:absolute; top:50%; height:2px; background:var(--road-edge);
+    z-index:1;
+  }
+
+  /* ---------- School sign (small) ---------- */
+  .sign{
+    background:var(--panel);
+    border:1px solid var(--panel-border);
+    border-radius:10px;
+    padding:14px 18px;
+    max-width:300px;
+    box-shadow:0 6px 20px rgba(0,0,0,0.25);
+  }
+  .sign.has-image{
+    display:flex; gap:14px; align-items:flex-start;
+    max-width:460px; padding:14px;
+  }
+  .sign.has-image-landscape{
+    display:flex; flex-direction:column; gap:12px;
+    max-width:420px; padding:14px;
+  }
+  .sign-thumb{
+    width:150px; aspect-ratio:3/4; object-fit:cover;
+    border-radius:8px; flex-shrink:0;
+    border:1px solid var(--panel-border);
+  }
+  .sign-thumb-wide{
+    width:100%; aspect-ratio:16/9; object-fit:cover;
+    border-radius:8px;
+    border:1px solid var(--panel-border);
+    display:block;
+  }
+  .sign-body{ flex:1; min-width:0; }
+  .sign .code{
+    font-family:'IBM Plex Mono',monospace; font-size:11px;
+    color:var(--cyan); letter-spacing:0.12em; margin-bottom:6px; display:block;
+  }
+  .sign h3{
+    font-family:'Barlow Condensed',sans-serif; font-size:20px; font-weight:600;
+    margin:0 0 6px; letter-spacing:0.01em;
+  }
+  .sign p{ margin:0; font-size:13px; line-height:1.5; color:var(--text-dim); }
+
+  /* ---------- College card (large) ---------- */
+  .milestone{
+    background:linear-gradient(180deg, var(--panel), #101317);
+    border:1px solid var(--panel-border);
+    border-radius:16px;
+    padding:26px 28px;
+    max-width:460px;
+    box-shadow:0 12px 34px rgba(0,0,0,0.35);
+    position:relative;
+  }
+  .milestone::before{
+    content:""; position:absolute; left:0; top:16px; bottom:16px; width:3px;
+    background:var(--amber); border-radius:3px;
+  }
+  .node.finish .milestone::before{ background:var(--green); }
+  .milestone .code{
+    font-family:'IBM Plex Mono',monospace; font-size:11px;
+    color:var(--amber); letter-spacing:0.14em; margin-bottom:8px; display:block;
+  }
+  .node.finish .milestone .code{ color:var(--green); }
+  .milestone h3{
+    font-family:'Barlow Condensed',sans-serif; font-size:26px; font-weight:700;
+    margin:0 0 10px;
+  }
+  .milestone p{ margin:0 0 14px; font-size:14.5px; line-height:1.6; color:var(--text-dim); }
+  .tags{ display:flex; flex-wrap:wrap; gap:8px; }
+  .tag{
+    font-family:'IBM Plex Mono',monospace; font-size:11.5px;
+    padding:6px 11px; border-radius:999px; letter-spacing:0.02em;
+    display:inline-flex; align-items:center; gap:6px;
+    border:1px solid var(--panel-border);
+  }
+  .tag.por{ color:var(--amber); border-color:rgba(224,160,32,0.4); background:rgba(224,160,32,0.08); }
+  .tag.intern{ color:var(--intern); border-color:rgba(63,169,245,0.45); background:rgba(63,169,245,0.1); font-weight:600; }
+  .tag.result{ color:var(--green); border-color:rgba(224,160,32,0.4); background:rgba(224,160,32,0.08); }
+
+  /* ---------- Chapter divider (overhead gantry sign) ---------- */
+  .gantry{
+    background:linear-gradient(180deg, #1a1e24, #101317);
+    border:1px solid var(--panel-border);
+    border-top:3px solid var(--lane);
+    border-radius:10px;
+    padding:18px 26px;
+    max-width:440px;
+    text-align:center;
+    box-shadow:0 10px 28px rgba(0,0,0,0.35);
+  }
+  .gantry .code{
+    font-family:'IBM Plex Mono',monospace; font-size:11px;
+    color:var(--lane); letter-spacing:0.16em; margin-bottom:8px; display:block;
+  }
+  .gantry h3{
+    font-family:'Barlow Condensed',sans-serif; font-size:24px; font-weight:700; margin:0 0 8px;
+  }
+  .gantry p{ margin:0; font-size:13.5px; line-height:1.55; color:var(--text-dim); }
+
+  /* ---------- Workshop-years project gallery ---------- */
+  .gallery-wrap{
+    width:100%;
+    background:linear-gradient(180deg, #12151a, #0e1013);
+    border:1px solid var(--panel-border);
+    border-radius:18px;
+    padding:clamp(20px,4vw,34px);
+    box-shadow:0 14px 36px rgba(0,0,0,0.35);
+  }
+  .gallery-head{ text-align:center; margin-bottom:22px; }
+  .gallery-head .code{
+    font-family:'IBM Plex Mono',monospace; font-size:11px;
+    color:var(--cyan); letter-spacing:0.16em; margin-bottom:8px; display:block;
+  }
+  .gallery-head h3{
+    font-family:'Barlow Condensed',sans-serif; font-size:28px; font-weight:700; margin:0 0 8px;
+  }
+  .gallery-head p{ margin:0; font-size:13.5px; color:var(--text-dim); max-width:520px; margin:0 auto; }
+
+  .project-grid{
+    display:grid;
+    grid-template-columns:repeat(auto-fit, minmax(190px, 1fr));
+    gap:14px;
+    margin-top:22px;
+  }
+  .project-card{
+    background:var(--panel);
+    border:1px solid var(--panel-border);
+    border-radius:12px;
+    padding:16px 16px 14px;
+    display:flex; flex-direction:column; gap:10px;
+    transition:border-color .2s ease, transform .2s ease;
+  }
+  .project-card:hover{ border-color:var(--cyan); transform:translateY(-2px); }
+  .project-icon{
+    width:44px; height:44px; border-radius:10px;
+    background:rgba(176,112,16,0.08);
+    border:1px solid rgba(176,112,16,0.3);
+    display:flex; align-items:center; justify-content:center;
+    color:var(--cyan);
+    overflow:hidden;
+  }
+  .project-icon svg{ width:24px; height:24px; stroke:currentColor; fill:none; stroke-width:1.6; stroke-linecap:round; stroke-linejoin:round; }
+  .project-icon.has-thumb{ background:transparent; border-color:var(--panel-border); }
+  .project-icon .project-thumb-img{ width:100%; height:100%; object-fit:cover; display:block; }
+  .project-card .pclass{
+    font-family:'IBM Plex Mono',monospace; font-size:10.5px; letter-spacing:0.08em;
+    color:var(--amber); text-transform:uppercase;
+  }
+  .project-card h4{
+    font-family:'Barlow Condensed',sans-serif; font-size:17px; font-weight:600; margin:0; line-height:1.25;
+  }
+  .project-card .ptheme{
+    font-size:12px; color:var(--text-dim); line-height:1.4; margin:0;
+  }
+  .project-card{ cursor:pointer; }
+  .project-card .tap-hint{
+    margin-top:2px; font-family:'IBM Plex Mono',monospace; font-size:10px;
+    letter-spacing:0.06em; color:var(--cyan); opacity:0.8; text-transform:uppercase;
+  }
+
+  /* ---------- College years — direct-view image grid (no click needed) ---------- */
+  .college-grid{
+    display:grid;
+    grid-template-columns:repeat(auto-fit, minmax(220px, 1fr));
+    gap:18px;
+    margin-top:22px;
+  }
+  .college-card{
+    background:linear-gradient(180deg, var(--panel), #101317);
+    border:1px solid var(--panel-border);
+    border-radius:14px;
+    overflow:hidden;
+    position:relative;
+    display:flex; flex-direction:column;
+    transition:border-color .2s ease, transform .2s ease;
+  }
+  .college-card:hover{ border-color:var(--amber); transform:translateY(-3px); }
+  .college-card.finish:hover{ border-color:var(--green); }
+  .college-card.has-intern-tag:hover{ border-color:var(--intern); }
+
+  .college-card .card-image-wrap{
+    position:relative;
+    width:100%; aspect-ratio:4/3;
+    background:#0e1013;
+  }
+  .college-card .card-image{
+    width:100%; height:100%; object-fit:cover; display:block;
+  }
+  .college-card.logo-only .card-image{
+    object-fit:contain; background:#fff; padding:22px;
+  }
+  .college-card .logo-badge{
+    position:absolute; left:10px; bottom:10px;
+    width:36px; height:36px; border-radius:8px; object-fit:contain;
+    background:#fff; padding:5px; flex-shrink:0;
+    border:1px solid rgba(255,255,255,0.15);
+    box-shadow:0 4px 10px rgba(0,0,0,0.35);
+  }
+  .college-card.logo-only .logo-badge{ display:none; }
+
+  .college-card::before{
+    content:""; position:absolute; left:0; top:16px; bottom:16px; width:3px;
+    background:var(--amber); border-radius:3px; z-index:2;
+  }
+  .college-card.finish::before{ background:var(--green); }
+  .college-card.has-intern-tag::before{ background:var(--intern); }
+
+  .college-card .card-info{ padding:14px 16px 16px; }
+  .college-card .code{
+    font-family:'IBM Plex Mono',monospace; font-size:11px;
+    color:var(--amber); letter-spacing:0.12em; display:block; margin-bottom:4px;
+  }
+  .college-card.finish .code{ color:var(--green); }
+  .college-card.has-intern-tag .code{ color:var(--intern); }
+  .college-card h4{
+    font-family:'Barlow Condensed',sans-serif; font-size:19px; font-weight:700; margin:0; line-height:1.2;
+  }
+  @media (max-width:600px){
+    .college-grid{ grid-template-columns:repeat(2, 1fr); gap:12px; }
+    .college-card .card-info{ padding:10px 12px 12px; }
+    .college-card h4{ font-size:15px; }
+  }
+  @media (max-width:420px){
+    .college-grid{ grid-template-columns:1fr; }
+  }
+
+  /* ---------- Story viewer (Instagram-highlight style) ---------- */
+  .story-overlay{
+    position:fixed; inset:0; z-index:200;
+    background:#000;
+    display:none;
+    align-items:center; justify-content:center;
+    opacity:0; transition:opacity .18s ease;
+  }
+  .story-overlay.open{ display:flex; opacity:1; }
+  .story-stage{
+    position:relative;
+    width:min(420px, 100vw);
+    height:min(760px, 100vh);
+    background:radial-gradient(circle at 50% 30%, #171b21, #0a0c0f 75%);
+    overflow:hidden;
+  }
+  .story-progress{
+    position:absolute; top:0; left:0; right:0; z-index:5;
+    display:flex; gap:5px; padding:10px 10px 0;
+  }
+  .story-seg{
+    flex:1; height:3px; border-radius:3px; background:rgba(255,255,255,0.25); overflow:hidden;
+  }
+  .story-seg .fill{
+    height:100%; width:0%; background:#fff; border-radius:3px;
+  }
+  .story-seg.done .fill{ width:100% !important; }
+  .story-topbar{
+    position:absolute; top:22px; left:0; right:0; z-index:5;
+    display:flex; align-items:center; justify-content:space-between;
+    padding:0 14px;
+  }
+  .story-tag{
+    font-family:'IBM Plex Mono',monospace; font-size:11px; color:#fff;
+    letter-spacing:0.06em; background:rgba(255,255,255,0.12);
+    padding:5px 10px; border-radius:999px;
+  }
+  .story-close{
+    width:30px; height:30px; border-radius:50%;
+    background:rgba(255,255,255,0.12); border:none; color:#fff;
+    font-size:16px; cursor:pointer; display:flex; align-items:center; justify-content:center;
+  }
+  .story-body{
+    position:absolute; inset:0;
+    display:flex; flex-direction:column; align-items:center; justify-content:center;
+    padding:70px 30px 40px; text-align:center; gap:18px;
+  }
+  .story-icon-wrap{
+    width:120px; height:120px; border-radius:28px;
+    background:rgba(176,112,16,0.1); border:1px solid rgba(176,112,16,0.35);
+    display:flex; align-items:center; justify-content:center; color:var(--cyan);
+  }
+  .story-icon-wrap svg{ width:64px; height:64px; stroke:currentColor; fill:none; stroke-width:1.4; stroke-linecap:round; stroke-linejoin:round; }
+  .story-media{ max-width:100%; max-height:55vh; border-radius:16px; object-fit:cover; }
+  .story-logo-wrap{
+    width:140px; height:140px; border-radius:24px; background:#fff;
+    display:flex; align-items:center; justify-content:center; padding:20px;
+    box-shadow:0 12px 30px rgba(0,0,0,0.4);
+  }
+  .story-logo{ max-width:100%; max-height:100%; object-fit:contain; }
+  .story-body .pclass{
+    font-family:'IBM Plex Mono',monospace; font-size:11.5px; color:var(--amber); letter-spacing:0.1em;
+  }
+  .story-body h3{
+    font-family:'Barlow Condensed',sans-serif; font-size:26px; font-weight:700; color:#fff; margin:0;
+  }
+  .story-body p{ font-size:14px; color:rgba(255,255,255,0.65); line-height:1.55; margin:0; max-width:320px; }
+  .story-nav{ position:absolute; top:0; bottom:0; width:35%; z-index:4; cursor:pointer; }
+  .story-nav.prev{ left:0; }
+  .story-nav.next{ right:0; }
+  .story-tutorial{
+    position:absolute; top:50%; right:18px; z-index:6;
+    display:flex; align-items:center; gap:6px;
+    background:rgba(0,0,0,0.6); backdrop-filter:blur(6px);
+    border:1px solid rgba(255,255,255,0.25); border-radius:999px;
+    padding:9px 14px 9px 12px; pointer-events:none;
+    opacity:0; transform:translateY(-50%) translateX(8px);
+    transition:opacity .35s ease, transform .35s ease;
+  }
+  .story-tutorial.show{ opacity:1; animation:tutPulse 1.4s ease-in-out infinite; }
+  .story-tutorial .tt-arrow{ font-size:16px; line-height:1; color:var(--cyan); }
+  .story-tutorial span:last-child{
+    font-family:'IBM Plex Mono',monospace; font-size:11.5px; color:#fff;
+    letter-spacing:0.03em; white-space:nowrap;
+  }
+  @keyframes tutPulse{
+    0%,100%{ transform:translateY(-50%) translateX(0); }
+    50%{ transform:translateY(-50%) translateX(-5px); }
+  }
+  @media (max-width:480px){
+    .story-tutorial{ right:12px; padding:8px 12px; }
+    .story-tutorial span:last-child{ font-size:10.5px; }
+  }
+  .speed-badge{
+    position:absolute; top:60px; left:50%; z-index:6;
+    transform:translate(-50%, -6px);
+    display:flex; align-items:center; gap:5px;
+    background:rgba(0,0,0,0.65); backdrop-filter:blur(6px);
+    border:1px solid rgba(255,255,255,0.3); border-radius:999px;
+    padding:6px 13px; pointer-events:none;
+    opacity:0; transition:opacity .15s ease, transform .15s ease;
+  }
+  .speed-badge.show{ opacity:1; transform:translate(-50%, 0); }
+  .speed-badge svg{ width:13px; height:13px; stroke:var(--amber); fill:none; stroke-width:1.8; stroke-linecap:round; stroke-linejoin:round; }
+  .speed-badge span{
+    font-family:'IBM Plex Mono',monospace; font-size:12px; color:#fff; letter-spacing:0.04em;
+  }
+  @media (max-width:480px){
+    .story-stage{ width:100vw; height:100vh; }
+  }
+
+  /* finish flag */
+  .flag{
+    display:inline-block; width:16px; height:16px; margin-right:6px;
+    background-image:
+      linear-gradient(45deg, #000 25%, transparent 25%), linear-gradient(-45deg, #000 25%, transparent 25%),
+      linear-gradient(45deg, transparent 75%, #000 75%), linear-gradient(-45deg, transparent 75%, #000 75%);
+    background-size:6px 6px;
+    background-position:0 0, 0 3px, 3px -3px, -3px 0px;
+    background-color:#fff;
+    border-radius:2px;
+    vertical-align:-3px;
+  }
+
+  /* ---------- Footer ---------- */
+  .end-cta{
+    max-width:var(--container-w); margin:0 auto;
+    text-align:center; padding:20px 20px 100px;
+  }
+  .end-cta p{ color:var(--text-dim); font-size:14px; margin-bottom:20px; }
+  .end-cta a.btn{
+    display:inline-flex; align-items:center; gap:8px;
+    font-family:'IBM Plex Mono',monospace; font-size:12px; letter-spacing:0.08em; text-transform:uppercase;
+    background:var(--amber); color:#0A0C10; text-decoration:none; font-weight:600;
+    padding:12px 22px; border-radius:999px;
+  }
+
+  /* ---------- Responsive ---------- */
+  @media (max-width:640px){
+    .sign{ max-width:78vw; }
+    .milestone{ max-width:82vw; padding:20px 20px; }
+    .milestone h3{ font-size:22px; }
+    .node{ min-height:150px; }
+  }
+
+  @media (prefers-reduced-motion: reduce){
+    html{ scroll-behavior:auto; }
+  }
+</style>
+</head>
+<body>
+
+  <div class="top-bar">
+    <a href="index.html" class="back-link">&larr; Back to portfolio</a>
+    <span class="odo">CLASS I &rarr; PRESENT</span>
+  </div>
+
+  <section class="hero">
+    <p class="eyebrow">The Route</p>
+    <h1>The Journey<br>So Far</h1>
+  </section>
+
+  <div class="road-wrap" id="roadWrap">
+    <svg id="roadSvg"></svg>
+    <div class="nodes" id="nodes"></div>
+  </div>
+
+  <div class="story-overlay" id="storyOverlay">
+    <div class="story-stage">
+      <div class="story-progress" id="storyProgress"></div>
+      <div class="story-topbar">
+        <span class="story-tag" id="storyTag">THE WORKSHOP YEARS</span>
+        <button class="story-close" id="storyClose" aria-label="Close">&times;</button>
+      </div>
+      <div class="story-body" id="storyBody"></div>
+      <div class="story-nav prev" id="storyPrev"></div>
+      <div class="story-nav next" id="storyNext"></div>
+      <div class="story-tutorial" id="storyTutorial">
+        <span>Tap to skip ahead</span><span class="tt-arrow">&rsaquo;</span>
+      </div>
+      <div class="speed-badge" id="speedBadge">
+        <svg viewBox="0 0 24 24"><path d="M5 4l8 8-8 8V4z"/><path d="M13 4l8 8-8 8V4z"/></svg>
+        <span>2x speed</span>
+      </div>
+    </div>
+  </div>
+
+  <section class="end-cta">
+    <p>Fourth year, engine still running — open to CAE and multi-body-dynamics vehicle-dynamics roles.</p>
+    <a class="btn" href="index.html">Back to the garage &rarr;</a>
+  </section>
+
+<script>
+const stops = [
+  {kind:'school', code:'CLASS I–IV', title:'Class I – IV', desc:'Grew up on a steady diet of Tom & Jerry and Ninja Hattori.', image:'https://res.cloudinary.com/fvtkc10l/image/upload/v1788636221/cartoon_gei5hc.png'},
+  {kind:'school', code:'CLASS IV', title:'Class IV — The Switch', desc:'Cartoon channels get blocked at home — a small change that turns into a turning point.'},
+  {kind:'school', code:'CLASS IV ONWARDS', title:'Class IV Onwards', desc:'Discovery, Discovery Science, History TV18 and National Geographic take over the screen time instead.', image:'https://res.cloudinary.com/fvtkc10l/image/upload/v1788636724/discovery_qst3ex.png'},
+  {kind:'school', code:'FAVOURITE SHOWS', title:'Shows That Stuck', desc:'A few favourites from Discovery Channel, History TV18 and National Geographic.', image:'https://res.cloudinary.com/fvtkc10l/image/upload/v1788637914/favourite_shows_zzu9tw.png', orientation:'landscape'},
+  {kind:'school', code:'CLASS IV–IX', title:'Class IV – IX', desc:'Starts recreating what he watches — cardboard, discarded toys, motors, wires, whatever the house has lying around.'},
+
+  {kind:'gallery', code:'THE WORKSHOP YEARS', title:'Class IV – IX Builds', desc:'A running list of what actually got built during those years, from a cardboard truck to the DIY Dodge Challenger.',
+    projects:[
+      {cls:'Class 5 · 2014', title:'6-Wheel Cardboard Truck', theme:'Drivetrain, axles, motion', icon:'truck', media:[
+        {type:'image', src:'https://res.cloudinary.com/fvtkc10l/image/upload/v1785402345/Boat_Truck_wl0dnm.png'}
+      ]},
+      {cls:'Class 4 · 2013', title:'DIY Fan', theme:'Basic electrical circuit, DC motor', icon:'fan', media:[
+        {type:'image', src:'https://res.cloudinary.com/fvtkc10l/image/upload/v1785402347/More_projects_rllssw.png'},
+        {type:'video', src:'https://res.cloudinary.com/fvtkc10l/video/upload/v1785403547/VID-20140309-00016_phf8ob.3gp'}
+      ]},
+      {cls:'Class 5 · 2014', title:'Upgraded Portable Music Player', theme:'Reverse engineering, battery upgrade', icon:'speaker', media:[
+        {type:'image', src:'https://res.cloudinary.com/fvtkc10l/image/upload/v1785400959/Speaker_v7ydah.png'},
+        {type:'video', src:'https://res.cloudinary.com/fvtkc10l/video/upload/v1785401214/VID-20140720-00023_smk9qz.3gp'},
+        {type:'video', src:'https://res.cloudinary.com/fvtkc10l/video/upload/v1785404174/VID-20140730-00023_-_Trim1_heqvzk.mp4', caption:'VERSION 2 — Full Assembled in Box'},
+        {type:'video', src:'https://res.cloudinary.com/fvtkc10l/video/upload/v1785404507/VID-20140801-00023_-_Trim2_ogtscp.mp4', caption:'VERSION 3'}
+      ]},
+      {cls:'Class 5 · 2014', title:'Bedside Night Light', theme:'Human-centered design, electrical wiring', icon:'lamp', media:[
+        {type:'image', src:'https://res.cloudinary.com/fvtkc10l/image/upload/v1785402347/Bed_night_Light_c3oojh.png'}
+      ]},
+      {cls:'Class 5 · 2014', title:'Miniature Recovery Winch', theme:'Torque, rotary → linear motion', icon:'winch', media:[
+        {type:'image', src:'https://res.cloudinary.com/fvtkc10l/image/upload/v1785401896/Winch_lbhzjh.gif'},
+        {type:'video', src:'https://res.cloudinary.com/fvtkc10l/video/upload/v1785404044/VID-20140414-00021_-_Trim_wt1od2.mp4'}
+      ]},
+      {cls:'Class 5 · 2014', title:'Thermocol Boat', theme:"Archimedes' principle, experimentation", icon:'boat', media:[
+        {type:'video', src:'https://res.cloudinary.com/fvtkc10l/video/upload/v1785402165/VID-20140605-00021_qsuyah.3gp'}
+      ]},
+      {cls:'Class 7', title:'Custom Tractor Tyre', theme:'Material substitution, prototyping', icon:'tire', media:[
+        {type:'image', src:'https://res.cloudinary.com/fvtkc10l/image/upload/v1785404853/Tractor_tyre_rbxtcr.jpg'}
+      ]},
+      {cls:'Class 8', title:'Homemade Joystick Remote', theme:'Motor control, polarity reversal', icon:'joystick', media:[
+        {type:'image', src:'https://res.cloudinary.com/fvtkc10l/image/upload/v1785402345/Joy_stick_Remote_v9g383.png'}
+      ]},
+      {cls:'Class 8', title:'DIY Diaphragm Pump', theme:'Fluid mechanics, check valves', icon:'pump', media:[
+        {type:'image', src:'https://res.cloudinary.com/fvtkc10l/image/upload/v1785402349/Pump_1_hewupr.png'},
+        {type:'image', src:'https://res.cloudinary.com/fvtkc10l/image/upload/v1785402318/Pump_2_yz8sn2.png'}
+      ]},
+      {cls:'Class 9', title:'DIY Dodge Challenger', theme:'Vehicle styling, body fabrication, circular DRL optics', icon:'car', media:[
+        {type:'image', src:'https://res.cloudinary.com/fvtkc10l/image/upload/v1785402346/Dodge_eld1cg.png'},
+        {type:'image', src:'https://res.cloudinary.com/fvtkc10l/image/upload/v1785402349/Dodge_Steering_vry6qu.png'},
+        {type:'image', src:'https://res.cloudinary.com/fvtkc10l/image/upload/v1785402344/Dodge_Steering2_j6g7ds.png'},
+        {type:'image', src:'https://res.cloudinary.com/fvtkc10l/image/upload/v1785402342/Dodge_DRL_jrhhpy.gif'}
+      ]}
+    ]},
+
+  {kind:'collegeGallery', code:'NSUT · 2023 — NOW', title:'The College Years', desc:'Four years across Team Daedalus Racing and three internships.',
+    items:[
+      {code:'FIRST YEAR', title:'Video Editor', finish:false, icon:'camera',
+        desc:'Joins Team Daedalus Racing (BAJA SAE) — first foothold on the team, telling the story behind the build.',
+        tags:[{t:'por', l:'TDR — Video Editor'}],
+        logo:'https://res.cloudinary.com/fvtkc10l/image/upload/v1785483565/team-daedalus-racing-12401462_zd8inl.webp',
+        image:'https://res.cloudinary.com/fvtkc10l/image/upload/v1785483565/team-daedalus-racing-12401462_zd8inl.webp', logoOnly:true},
+
+      {code:'SECOND YEAR', title:'Suspension & Steering Member', finish:false, icon:'steering',
+        desc:'Moves onto the technical side of the team, working suspension and steering on the competition vehicle.',
+        tags:[{t:'por', l:'TDR — Suspension & Steering Member'}],
+        logo:'https://res.cloudinary.com/fvtkc10l/image/upload/v1785483565/team-daedalus-racing-12401462_zd8inl.webp',
+        image:'https://res.cloudinary.com/fvtkc10l/image/upload/v1784716437/6685b63f-68d8-4953-9312-8893ba24ae2b_qx2mrn.jpg'},
+
+      {code:'SECOND YEAR', title:'Suspension & Steering Lead', finish:false, icon:'steering',
+        desc:'Leads the suspension and steering sub-system through the ATVC 2025 season.',
+        tags:[
+          {t:'por', l:'TDR — Suspension & Steering Lead'},
+          {t:'result', l:'AIR 1 — Suspension & Traction, ATVC 2025'}
+        ],
+        logo:'https://res.cloudinary.com/fvtkc10l/image/upload/v1785483565/team-daedalus-racing-12401462_zd8inl.webp',
+        image:'https://res.cloudinary.com/fvtkc10l/image/upload/v1784391532/slide.img1_d3vlz4.jpg'},
+
+      {code:'SECOND YEAR — SUMMER', title:'Design & Development Intern', finish:false, icon:'car',
+        desc:'Designs a 2-seater dune buggy from the ground up as sole mechanical engineer on the project.',
+        tags:[{t:'intern', l:'Internship — ARC Global, 2-Seater Dune Buggy'}],
+        logo:'https://res.cloudinary.com/fvtkc10l/image/upload/v1785483398/ARC_logo_udm5pe.png',
+        image:'https://res.cloudinary.com/fvtkc10l/image/upload/v1785484884/final.cad1_u5g8ud.jpg'},
+
+      {code:'THIRD YEAR', title:'Vehicle Design & Development Engineer Intern', finish:false, icon:'moped',
+        desc:'Works on the design of an electric moped, from concept through detailed vehicle development.',
+        tags:[{t:'intern', l:'Internship — E2EM Technologies, Electric Moped'}],
+        logo:'https://res.cloudinary.com/fvtkc10l/image/upload/v1785483357/E2EM_logo_en9tdp.png',
+        image:'https://res.cloudinary.com/fvtkc10l/image/upload/v1785485139/Screenshot_2026-07-31_133520_sg2pkh.png'},
+
+      {code:'THIRD YEAR', title:'Chief Design Engineer', finish:false, icon:'gear',
+        desc:'Takes charge of design across Team Daedalus Racing, contributing to an AIR 2 Overall finish at ATVC 2026.',
+        tags:[
+          {t:'por', l:'TDR — Chief Design Engineer'},
+          {t:'result', l:'AIR 2 — Overall, ATVC 2026'}
+        ],
+        logo:'https://res.cloudinary.com/fvtkc10l/image/upload/v1785483565/team-daedalus-racing-12401462_zd8inl.webp',
+        image:'https://res.cloudinary.com/fvtkc10l/image/upload/v1784715844/IMG_2148_qeywnw.jpg'},
+
+      {code:'THIRD YEAR — SUMMER · NOW', title:'Mechanical Design Engineer Intern', finish:true, icon:'battery',
+        desc:'Working on swappable battery pack R&D at GridX Energy — open road ahead for CAE and MBD vehicle-dynamics roles next.',
+        tags:[{t:'intern', l:'Internship — GridX Energy, Swappable Battery Pack R&D'}],
+        logo:'https://res.cloudinary.com/fvtkc10l/image/upload/v1785483175/GridXlogo_lf2gz9.jpg',
+        image:'https://res.cloudinary.com/fvtkc10l/image/upload/v1785485503/Gridxteam_xveekk.jpg'},
+    ]},
+];
+
+const ICONS = {
+  truck: '<rect x="3" y="11" width="16" height="8" rx="1"/><rect x="19" y="13" width="6" height="6" rx="1"/><circle cx="8" cy="20" r="2"/><circle cx="15" cy="20" r="2"/><circle cx="22" cy="20" r="2"/>',
+  fan: '<circle cx="16" cy="16" r="2.5"/><ellipse cx="16" cy="9" rx="3" ry="6"/><ellipse cx="23" cy="16" rx="6" ry="3"/><ellipse cx="16" cy="23" rx="3" ry="6"/><ellipse cx="9" cy="16" rx="6" ry="3"/>',
+  speaker: '<rect x="9" y="5" width="14" height="22" rx="2"/><circle cx="16" cy="11" r="2"/><circle cx="16" cy="20" r="4.5"/>',
+  lamp: '<circle cx="16" cy="13" r="6"/><line x1="16" y1="19" x2="16" y2="24"/><line x1="12" y1="26" x2="20" y2="26"/><line x1="13" y1="7" x2="12" y2="4"/><line x1="19" y1="7" x2="20" y2="4"/>',
+  winch: '<circle cx="14" cy="16" r="7"/><circle cx="14" cy="16" r="2"/><path d="M21 16 L27 16"/><path d="M27 13 L27 19"/>',
+  boat: '<path d="M6 19 L26 19 L22 24 L10 24 Z"/><line x1="16" y1="19" x2="16" y2="6"/><path d="M16 7 L22 14 L16 14 Z"/>',
+  tire: '<circle cx="16" cy="16" r="9"/><circle cx="16" cy="16" r="4"/><line x1="16" y1="7" x2="16" y2="12"/><line x1="16" y1="20" x2="16" y2="25"/><line x1="7" y1="16" x2="12" y2="16"/><line x1="20" y1="16" x2="25" y2="16"/>',
+  steering: '<circle cx="16" cy="16" r="9"/><circle cx="16" cy="16" r="2.5"/><line x1="16" y1="16" x2="16" y2="7"/><line x1="16" y1="16" x2="9" y2="21"/><line x1="16" y1="16" x2="23" y2="21"/>',
+  joystick: '<rect x="9" y="21" width="14" height="5" rx="1"/><line x1="16" y1="21" x2="16" y2="9"/><circle cx="16" cy="7" r="3"/>',
+  pump: '<rect x="7" y="12" width="11" height="10" rx="1"/><circle cx="12.5" cy="17" r="3"/><path d="M18 17 L26 17"/><path d="M23 14 L26 17 L23 20"/>',
+  car: '<path d="M5 20 L7 13 L12 10 L20 10 L25 13 L27 20 Z"/><circle cx="10" cy="21" r="2.5"/><circle cx="22" cy="21" r="2.5"/>',
+  drl: '<circle cx="16" cy="16" r="4"/><line x1="16" y1="6" x2="16" y2="9"/><line x1="16" y1="23" x2="16" y2="26"/><line x1="6" y1="16" x2="9" y2="16"/><line x1="23" y1="16" x2="26" y2="16"/><line x1="9" y1="9" x2="11" y2="11"/><line x1="21" y1="21" x2="23" y2="23"/><line x1="23" y1="9" x2="21" y2="11"/><line x1="11" y1="21" x2="9" y2="23"/>',
+  camera: '<rect x="4" y="9" width="24" height="17" rx="2"/><path d="M11 9 L13 5 L19 5 L21 9"/><circle cx="16" cy="17.5" r="5"/>',
+  moped: '<circle cx="9" cy="22" r="3"/><circle cx="23" cy="22" r="3"/><path d="M9 22 L14 22 L18 12 L23 22"/><path d="M14 22 L20 14"/>',
+  gear: '<circle cx="16" cy="16" r="5"/><path d="M16 4 L16 8 M16 24 L16 28 M4 16 L8 16 M24 16 L28 16 M7 7 L10 10 M22 22 L25 25 M25 7 L22 10 M10 22 L7 25"/>',
+  battery: '<rect x="6" y="11" width="18" height="12" rx="2"/><rect x="24" y="15" width="3" height="4"/><line x1="11" y1="14" x2="11" y2="20"/><line x1="16" y1="14" x2="16" y2="20"/>'
+};
+function iconSvg(key){
+  return `<svg viewBox="0 0 32 32">${ICONS[key] || ICONS.truck}</svg>`;
+}
+
+const svg = document.getElementById('roadSvg');
+const nodesEl = document.getElementById('nodes');
+const wrap = document.getElementById('roadWrap');
+
+function render(){
+  nodesEl.innerHTML = '';
+  svg.innerHTML = '';
+
+  const width = wrap.clientWidth;
+  const isMobile = width < 640;
+  const amplitude = isMobile ? 0 : Math.min(150, width*0.16);
+  const wavelength = 640;
+  const centerX = width/2;
+
+  // --- pass 1: lay out every node in normal document flow so heights are real ---
+  const rows = []; // {stop, rowEl, cardEl, markerEl}
+
+  stops.forEach((s) => {
+    const node = document.createElement('div');
+    node.className = 'node ' + s.kind + (s.finish ? ' finish' : '');
+    node.style.cssText = 'position:relative; display:flex; justify-content:center; padding:' +
+      (s.kind === 'gallery' || s.kind === 'collegeGallery' ? '28px 0' : s.kind === 'divider' ? '26px 0' : '18px 0') + ';';
+
+    let cardEl;
+    if(s.kind === 'school'){
+      cardEl = document.createElement('div');
+      const isLandscape = s.image && s.orientation === 'landscape';
+      cardEl.className = 'sign' + (s.image ? (isLandscape ? ' has-image-landscape' : ' has-image') : '');
+      if(!s.image){
+        cardEl.innerHTML = `<span class="code">${s.code}</span><h3>${s.title}</h3><p>${s.desc}</p>`;
+      } else if(isLandscape){
+        cardEl.innerHTML = `<img class="sign-thumb-wide" src="${s.image}" alt="${s.title}">
+           <div class="sign-body"><span class="code">${s.code}</span><h3>${s.title}</h3><p>${s.desc}</p></div>`;
+      } else {
+        cardEl.innerHTML = `<img class="sign-thumb" src="${s.image}" alt="${s.title}">
+           <div class="sign-body"><span class="code">${s.code}</span><h3>${s.title}</h3><p>${s.desc}</p></div>`;
+      }
+    } else if(s.kind === 'divider'){
+      cardEl = document.createElement('div');
+      cardEl.className = 'gantry';
+      cardEl.innerHTML = `<span class="code">${s.code}</span><h3>${s.title}</h3><p>${s.desc}</p>`;
+    } else if(s.kind === 'gallery'){
+      cardEl = document.createElement('div');
+      cardEl.className = 'gallery-wrap';
+      const gridHTML = s.projects.map((p, idx) => {
+        const firstImg = getMediaList(p).find(m => m.type === 'image');
+        const thumbHTML = firstImg
+          ? `<img class="project-thumb-img" src="${firstImg.src}" alt="${p.title}">`
+          : iconSvg(p.icon);
+        return `
+        <div class="project-card" data-index="${idx}">
+          <div class="project-icon${firstImg ? ' has-thumb' : ''}">${thumbHTML}</div>
+          <span class="pclass">${p.cls}</span>
+          <h4>${p.title}</h4>
+          <p class="ptheme">${p.theme}</p>
+          <span class="tap-hint">Tap to view &rarr;</span>
+        </div>`;
+      }).join('');
+      cardEl.innerHTML = `
+        <div class="gallery-head">
+          <span class="code">${s.code}</span>
+          <h3>${s.title}</h3>
+          <p>${s.desc}</p>
+        </div>
+        <div class="project-grid">${gridHTML}</div>`;
+      cardEl.querySelector('.project-grid').addEventListener('click', (e) => {
+        const card = e.target.closest('.project-card');
+        if(card) openStory(s.projects, Number(card.dataset.index));
+      });
+    } else if(s.kind === 'collegeGallery'){
+      cardEl = document.createElement('div');
+      cardEl.className = 'gallery-wrap';
+      const gridHTML = s.items.map((p, idx) => {
+        const hasIntern = (p.tags||[]).some(t => t.t === 'intern');
+        return `
+        <div class="college-card ${p.finish ? 'finish' : ''} ${hasIntern ? 'has-intern-tag' : ''} ${p.logoOnly ? 'logo-only' : ''}">
+          <div class="card-image-wrap">
+            <img class="card-image" src="${p.image}" alt="${p.title}">
+            ${p.logo ? `<img class="logo-badge" src="${p.logo}" alt="${p.title} company logo">` : ''}
+          </div>
+          <div class="card-info">
+            <span class="code">${p.finish ? '<span class="flag"></span>' : ''}${p.code}</span>
+            <h4>${p.title}</h4>
+          </div>
+        </div>`;
+      }).join('');
+      cardEl.innerHTML = `
+        <div class="gallery-head">
+          <span class="code">${s.code}</span>
+          <h3>${s.title}</h3>
+          <p>${s.desc}</p>
+        </div>
+        <div class="college-grid">${gridHTML}</div>`;
+    } else {
+      cardEl = document.createElement('div');
+      cardEl.className = 'milestone';
+      const tagHTML = (s.tags||[]).map(tag => `<span class="tag ${tag.t}">${tag.l}</span>`).join('');
+      cardEl.innerHTML = `
+        <span class="code">${s.finish ? '<span class="flag"></span>' : ''}${s.code}</span>
+        <h3>${s.title}</h3>
+        <p>${s.desc}</p>
+        <div class="tags">${tagHTML}</div>`;
+    }
+    if(s.kind !== 'gallery' && s.kind !== 'collegeGallery'){
+      cardEl.style.maxWidth = s.kind === 'divider' ? '440px' : (s.image ? (s.orientation === 'landscape' ? '420px' : '460px') : '300px');
+    }
+
+    node.appendChild(cardEl);
+    nodesEl.appendChild(node);
+    rows.push({stop: s, rowEl: node, cardEl});
+  });
+
+  // --- pass 2: measure real positions, place markers and apply wave drift ---
+  rows.forEach(row => {
+    const s = row.stop;
+    const centerY = row.rowEl.offsetTop + row.rowEl.offsetHeight/2;
+    const markerX = centerX + amplitude*Math.sin(2*Math.PI*centerY/wavelength);
+    const useCenter = isMobile || s.kind === 'divider' || s.kind === 'gallery' || s.kind === 'collegeGallery';
+    const drift = useCenter ? 0 : (markerX - centerX) * 0.5;
+
+    if(s.kind !== 'gallery'){
+      row.cardEl.style.transform = `translateX(${drift}px)`;
+    }
+
+    const marker = document.createElement('div');
+    marker.className = 'marker';
+    marker.style.position = 'absolute';
+    marker.style.left = (useCenter ? centerX : markerX) + 'px';
+    marker.style.top = centerY + 'px';
+    marker.style.transform = 'translate(-50%,-50%)';
+    if(s.kind === 'divider' || s.kind === 'gallery' || s.kind === 'collegeGallery') marker.style.borderColor = 'var(--lane)';
+    nodesEl.appendChild(marker);
+  });
+
+  const totalHeight = nodesEl.offsetHeight;
+  wrap.style.minHeight = totalHeight + 'px';
+  svg.setAttribute('viewBox', `0 0 ${width} ${totalHeight}`);
+  svg.setAttribute('width', width);
+  svg.setAttribute('height', totalHeight);
+
+  // draw road: base asphalt stroke + dashed lane line, sampled along the sine wave
+  let d = '';
+  const step = 6;
+  for(let y = 0; y <= totalHeight; y += step){
+    const x = centerX + amplitude*Math.sin(2*Math.PI*y/wavelength);
+    d += (y === 0 ? 'M' : 'L') + x.toFixed(1) + ',' + y.toFixed(1) + ' ';
+  }
+
+  const ns = 'http://www.w3.org/2000/svg';
+  const roadPath = document.createElementNS(ns,'path');
+  roadPath.setAttribute('d', d);
+  roadPath.setAttribute('fill','none');
+  roadPath.setAttribute('stroke','var(--road)');
+  roadPath.setAttribute('stroke-width', isMobile ? 10 : 22);
+  roadPath.setAttribute('stroke-linecap','round');
+  roadPath.setAttribute('stroke-linejoin','round');
+
+  const edgePathL = roadPath.cloneNode();
+  edgePathL.setAttribute('stroke','var(--road-edge)');
+  edgePathL.setAttribute('stroke-width', isMobile ? 11 : 23);
+  edgePathL.setAttribute('opacity','0.5');
+
+  const lanePath = document.createElementNS(ns,'path');
+  lanePath.setAttribute('d', d);
+  lanePath.setAttribute('fill','none');
+  lanePath.setAttribute('stroke','var(--lane)');
+  lanePath.setAttribute('stroke-width', 2);
+  lanePath.setAttribute('stroke-dasharray','10 12');
+  lanePath.setAttribute('stroke-linecap','round');
+  lanePath.setAttribute('opacity','0.85');
+
+  svg.appendChild(edgePathL);
+  svg.appendChild(roadPath);
+  svg.appendChild(lanePath);
+}
+
+render();
+let resizeTimer;
+window.addEventListener('resize', () => {
+  clearTimeout(resizeTimer);
+  resizeTimer = setTimeout(render, 150);
+});
+
+/* ---------- Story viewer ---------- */
+const storyOverlay = document.getElementById('storyOverlay');
+const storyProgress = document.getElementById('storyProgress');
+const storyBody = document.getElementById('storyBody');
+const storyTag = document.getElementById('storyTag');
+const storyClose = document.getElementById('storyClose');
+const storyPrev = document.getElementById('storyPrev');
+const storyNext = document.getElementById('storyNext');
+
+const storyTutorial = document.getElementById('storyTutorial');
+let storyItems = [];       // the full list of highlights (projects) for this gallery
+let storyHIndex = 0;       // which highlight (project) is currently open
+let storyMIndex = 0;       // which media item within that highlight is showing
+let storyTimer = null;
+let storyElapsed = 0;
+let tutorialShown = false; // resets on every page load/refresh
+let tutorialTimer = null;
+const SLIDE_MS = 4500;
+const TICK_MS = 30;
+
+function showTutorialHint(){
+  if(tutorialShown) return;
+  tutorialShown = true;
+  storyTutorial.classList.add('show');
+  tutorialTimer = setTimeout(hideTutorialHint, 3200);
+}
+function hideTutorialHint(){
+  clearTimeout(tutorialTimer);
+  storyTutorial.classList.remove('show');
+}
+
+// normalize a project's media into an array so every project behaves
+// like an Instagram highlight containing 1+ items (image/video/icon)
+function getMediaList(p){
+  if(Array.isArray(p.media) && p.media.length) return p.media;
+  if(p.media) return [p.media];
+  return [{type:'icon'}];
+}
+
+function buildProgressBars(){
+  const mediaList = getMediaList(storyItems[storyHIndex]);
+  storyProgress.innerHTML = mediaList.map(() => '<div class="story-seg"><div class="fill"></div></div>').join('');
+}
+
+function openStory(projects, startIndex){
+  storyItems = projects;
+  storyHIndex = startIndex || 0;
+  storyMIndex = 0;
+  buildProgressBars();
+  storyOverlay.classList.add('open');
+  document.body.style.overflow = 'hidden';
+  showSlide();
+  showTutorialHint();
+}
+
+function closeStory(){
+  storyOverlay.classList.remove('open');
+  document.body.style.overflow = '';
+  clearInterval(storyTimer);
+  clearTimeout(tutorialTimer);
+  storyTutorial.classList.remove('show');
+  storyBody.innerHTML = '';
+}
+
+function markSegments(){
+  const segs = storyProgress.querySelectorAll('.story-seg');
+  segs.forEach((seg, i) => {
+    const fill = seg.querySelector('.fill');
+    if(i < storyMIndex){ seg.classList.add('done'); fill.style.width = '100%'; }
+    else if(i === storyMIndex){ seg.classList.remove('done'); fill.style.width = '0%'; }
+    else { seg.classList.remove('done'); fill.style.width = '0%'; }
+  });
+}
+
+// advance to the next media item; if this highlight is finished, jump
+// into the next highlight (like Instagram moving to the next tray reel)
+function goNext(){
+  const mediaList = getMediaList(storyItems[storyHIndex]);
+  if(storyMIndex < mediaList.length - 1){
+    storyMIndex++;
+    showSlide();
+  } else if(storyHIndex < storyItems.length - 1){
+    storyHIndex++;
+    storyMIndex = 0;
+    buildProgressBars();
+    showSlide();
+  } else {
+    closeStory();
+  }
+}
+
+// step back a media item; if at the start of a highlight, jump back
+// into the end of the previous highlight
+function goPrev(){
+  if(storyMIndex > 0){
+    storyMIndex--;
+    showSlide();
+  } else if(storyHIndex > 0){
+    storyHIndex--;
+    const mediaList = getMediaList(storyItems[storyHIndex]);
+    storyMIndex = mediaList.length - 1;
+    buildProgressBars();
+    showSlide();
+  } else {
+    closeStory();
+  }
+}
+
+function startImageTimer(){
+  const fill = storyProgress.querySelectorAll('.story-seg')[storyMIndex].querySelector('.fill');
+  storyTimer = setInterval(() => {
+    storyElapsed += TICK_MS;
+    fill.style.width = Math.min(100, (storyElapsed/SLIDE_MS*100)) + '%';
+    if(storyElapsed >= SLIDE_MS) goNext();
+  }, TICK_MS);
+}
+
+function showSlide(){
+  clearInterval(storyTimer);
+  storyElapsed = 0;
+  markSegments();
+  document.getElementById('speedBadge').classList.remove('show');
+
+  const p = storyItems[storyHIndex];
+  const mediaList = getMediaList(p);
+  const m = mediaList[storyMIndex];
+  storyTag.textContent = p.title;
+
+  let mediaHTML = '';
+  if(m.type === 'image'){
+    mediaHTML = m.isLogo
+      ? `<div class="story-logo-wrap"><img class="story-logo" src="${m.src}" alt="${p.title}"></div>`
+      : `<img class="story-media" src="${m.src}" alt="${p.title}">`;
+  } else if(m.type === 'video'){
+    mediaHTML = `<video class="story-media" src="${m.src}" autoplay muted playsinline></video>`;
+  } else {
+    mediaHTML = `<div class="story-icon-wrap">${iconSvg(p.icon)}</div>`;
+  }
+
+  const tagsHTML = p.tags ? `<div class="tags" style="justify-content:center;margin-top:2px;">${p.tags.map(tag => `<span class="tag ${tag.t}">${tag.l}</span>`).join('')}</div>` : '';
+
+  storyBody.innerHTML = `
+    ${mediaHTML}
+    <span class="pclass">${p.cls || p.code}</span>
+    <h3>${p.title}</h3>
+    <p>${m.caption || p.desc || p.theme}</p>
+    ${tagsHTML}`;
+
+  const videoEl = storyBody.querySelector('video');
+  const fill = storyProgress.querySelectorAll('.story-seg')[storyMIndex].querySelector('.fill');
+
+  if(videoEl){
+    videoEl.addEventListener('timeupdate', () => {
+      if(videoEl.duration){ fill.style.width = (videoEl.currentTime/videoEl.duration*100) + '%'; }
+    });
+    videoEl.addEventListener('ended', () => goNext());
+  } else {
+    startImageTimer();
+  }
+}
+
+storyClose.addEventListener('click', closeStory);
+storyPrev.addEventListener('click', () => { hideTutorialHint(); goPrev(); });
+storyOverlay.addEventListener('click', (e) => { if(e.target === storyOverlay) closeStory(); });
+
+/* ---------- hold-to-fast-forward on the right (next) tap zone ---------- */
+const HOLD_MS = 220;
+let holdTimer = null;
+let isHolding = false;
+const speedBadge = document.getElementById('speedBadge');
+
+function beginHold(){
+  holdTimer = setTimeout(() => {
+    isHolding = true;
+    hideTutorialHint();
+    const videoEl = storyBody.querySelector('video');
+    if(videoEl){
+      videoEl.playbackRate = 2;
+      speedBadge.classList.add('show');
+    } else {
+      clearInterval(storyTimer);
+      storyTimer = null;
+    }
+  }, HOLD_MS);
+}
+
+function endHold(){
+  clearTimeout(holdTimer);
+  speedBadge.classList.remove('show');
+  if(!isHolding) return;
+  const videoEl = storyBody.querySelector('video');
+  if(videoEl){
+    videoEl.playbackRate = 1;
+  } else if(!storyTimer){
+    startImageTimer();
+  }
+  isHolding = false;
+}
+
+storyNext.addEventListener('pointerdown', beginHold);
+storyNext.addEventListener('pointerup', endHold);
+storyNext.addEventListener('pointerleave', endHold);
+storyNext.addEventListener('pointercancel', endHold);
+storyNext.addEventListener('click', () => {
+  if(isHolding){ isHolding = false; return; }
+  hideTutorialHint();
+  goNext();
+});
+document.addEventListener('keydown', (e) => {
+  if(!storyOverlay.classList.contains('open')) return;
+  if(e.key === 'Escape') closeStory();
+  if(e.key === 'ArrowRight'){ hideTutorialHint(); goNext(); }
+  if(e.key === 'ArrowLeft'){ hideTutorialHint(); goPrev(); }
+});
+
+// basic swipe support
+let touchStartX = 0;
+storyOverlay.addEventListener('touchstart', (e) => { touchStartX = e.touches[0].clientX; });
+storyOverlay.addEventListener('touchend', (e) => {
+  const dx = e.changedTouches[0].clientX - touchStartX;
+  if(Math.abs(dx) < 40) return;
+  hideTutorialHint();
+  if(dx < 0) goNext(); else goPrev();
+});
+</script>
+
+</body>
+</html>
