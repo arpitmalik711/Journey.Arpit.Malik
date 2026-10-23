@@ -3,359 +3,125 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>The Route — Journey</title>
+<title>The Journey — Arpit Malik</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link href="https://fonts.googleapis.com/css2?family=Barlow+Condensed:wght@400;600;700;800&family=IBM+Plex+Mono:wght@400;500;600&family=Barlow:wght@300;400;500&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Barlow+Condensed:wght@500;600;700;800&family=Barlow:wght@400;500;600&display=swap" rel="stylesheet">
 <style>
-  :root{
-    --bg:#0A0C10;
-    --panel:#111318;
-    --panel-border:#1E2229;
-    --text:#FFFFFF;
-    --text-dim:#8A8F9A;
-    --road:#23262b;
-    --road-edge:#34383f;
-    --lane:#E0A020;
-    --amber:#E0A020;
-    --cyan:#B07010;
-    --green:#E0A020;
-    --intern:#3FA9F5;
-    --container-w:920px;
-  }
+:root{
+  --bg:#141414; --tile:#1f1f1f; --line:#2d2d2d;
+  --text:#fff; --dim:#b3b3b3;
+  --red:#E50914; --red-soft:#FF4D55;
+  --gutter:clamp(16px,4vw,56px);
+  --tile-w:clamp(158px,19vw,262px);
+}
+*{box-sizing:border-box}
+html{scroll-behavior:smooth}
+body{margin:0;background:var(--bg);color:var(--text);font-family:'Barlow',sans-serif;overflow-x:hidden}
+button{font:inherit;color:inherit;background:none;border:0;padding:0;cursor:pointer}
+a{color:inherit}
+:focus-visible{outline:2px solid #fff;outline-offset:2px}
 
-  *{box-sizing:border-box;}
-  html{scroll-behavior:smooth;}
-  body{
-    margin:0;
-    background:var(--bg);
-    color:var(--text);
-    font-family:'Barlow',sans-serif;
-    overflow-x:hidden;
-  }
+/* nav */
+.nav{position:fixed;top:0;left:0;right:0;z-index:50;display:flex;align-items:center;gap:26px;padding:16px var(--gutter);background:linear-gradient(180deg,rgba(0,0,0,.75),transparent);transition:background .25s}
+.nav.solid{background:var(--bg)}
+.logo{font-family:'Barlow Condensed',sans-serif;font-weight:800;font-size:30px;letter-spacing:.06em;color:var(--red);text-decoration:none}
+.logo.has-img{display:block;position:relative;height:46px}
+.logo.has-img .logo-txt{display:none}
+.logo img{display:block;height:46px;width:auto;mix-blend-mode:screen}
+.logo .lg-wave{position:absolute;left:0;top:0;animation:wavein 1.2s ease-out .3s both}
+@keyframes wavein{from{clip-path:inset(0 100% 0 0)}to{clip-path:inset(0 0 0 0)}}
+@media (prefers-reduced-motion:reduce){.logo .lg-wave{animation:none}}
+.nav-links{display:flex;gap:20px;font-size:14px}
+.nav-links a{text-decoration:none;color:#e5e5e5;transition:color .15s}
+.nav-links a:hover,.nav-links a.on{color:#fff}
+.nav-links a.on{font-weight:600}
+.hi{width:18px;height:18px;stroke:currentColor;fill:none;stroke-width:2;stroke-linecap:round;stroke-linejoin:round;flex:none}
+.nav-back{display:inline-flex;align-items:center;gap:8px}
+.end a.home-btn{display:inline-flex;align-items:center;gap:9px}
+.nav-back{margin-left:auto;font-size:14px;color:#e5e5e5;text-decoration:none;border:1px solid #6b6b6b;border-radius:4px;padding:6px 14px}
+.nav-back:hover{border-color:#fff}
 
-  /* subtle asphalt texture */
-  body::before{
-    content:"";
-    position:fixed; inset:0;
-    background-image:
-      radial-gradient(circle at 20% 10%, rgba(255,255,255,0.03), transparent 40%),
-      radial-gradient(circle at 80% 60%, rgba(176,112,16,0.04), transparent 45%);
-    pointer-events:none;
-    z-index:0;
-  }
+/* hero */
+.hero{position:relative;min-height:min(86vh,760px);display:flex;align-items:flex-end;padding:120px var(--gutter) clamp(48px,9vw,110px);background:#1a0f10 center/cover no-repeat}
+.hero::before{content:"";position:absolute;inset:0;background:linear-gradient(90deg,rgba(20,20,20,.95) 0%,rgba(20,20,20,.6) 45%,rgba(20,20,20,.1) 100%),linear-gradient(0deg,var(--bg) 0%,transparent 35%)}
+.hero-in{position:relative;max-width:640px}
+.hero h1{font-family:'Barlow Condensed',sans-serif;font-weight:800;font-size:clamp(60px,10vw,128px);line-height:.88;margin:0 0 18px;letter-spacing:-.005em}
+.hero-meta{display:flex;flex-wrap:wrap;align-items:center;gap:10px 14px;font-size:15px;color:var(--dim);margin-bottom:14px}
+.hero-meta b{color:#46d369;font-weight:600}
+.hero-meta .box{border:1px solid #8a8a8a;padding:0 6px;font-size:13px;color:#e5e5e5}
+.hero p{font-size:clamp(16px,1.6vw,20px);line-height:1.45;margin:0 0 22px;color:#f2f2f2;text-shadow:0 1px 8px rgba(0,0,0,.6)}
+.hero-btns{display:flex;gap:12px;flex-wrap:wrap}
+.btn{display:inline-flex;align-items:center;gap:9px;padding:10px 26px;border-radius:4px;font-weight:600;font-size:18px;transition:background .15s}
+.btn svg{width:22px;height:22px;fill:currentColor}
+.btn.play{background:#fff;color:#141414}.btn.play:hover{background:rgba(255,255,255,.75)}
+.btn.info{background:rgba(109,109,110,.7);color:#fff}.btn.info:hover{background:rgba(109,109,110,.45)}
 
-  a{color:inherit;}
+/* rows */
+main{position:relative;z-index:1;margin-top:-6vw}
+.row{position:relative;margin:0 0 6px;scroll-margin-top:70px}
+.row h2{font-family:'Barlow Condensed',sans-serif;font-weight:600;font-size:clamp(22px,2.2vw,28px);margin:0 0 0;padding:0 var(--gutter);display:flex;align-items:baseline;gap:12px}
+.row h2 small{font-family:'Barlow',sans-serif;font-size:13px;font-weight:500;color:var(--red-soft)}
+.rail{display:flex;gap:6px;overflow-x:auto;padding:26px var(--gutter) 34px;scroll-snap-type:x proximity;scroll-padding-left:var(--gutter);scrollbar-width:none}
+.rail::-webkit-scrollbar{display:none}
+.swipe-chip{display:inline-flex;align-items:center;gap:6px;background:rgba(229,9,20,.2);color:#FF4D55;border-radius:99px;padding:3px 11px 3px 8px;font:600 12px/1 'Barlow',sans-serif;opacity:0;transform:translateX(10px);transition:opacity .35s,transform .35s}
+.swipe-chip.show{opacity:1;transform:none}
+.swipe-chip svg{width:20px;height:20px;stroke:currentColor;fill:none;stroke-width:2;stroke-linecap:round;stroke-linejoin:round;animation:swipehand 1.3s ease-in-out infinite}
+@keyframes swipehand{0%{transform:translateX(6px)}65%,100%{transform:translateX(-6px)}}
+@media (prefers-reduced-motion:reduce){.swipe-chip svg{animation:none}}
+.rbtn{position:absolute;top:44px;bottom:34px;width:var(--gutter);min-width:36px;z-index:6;display:flex;align-items:center;justify-content:center;background:rgba(20,20,20,.7);opacity:0;transition:opacity .2s;font-size:30px}
+.rbtn.prev{left:0}.rbtn.next{right:0}
+.row:hover .rbtn:not(.hide){opacity:1}
+.rbtn.hide{display:none}
+.rbtn svg{width:26px;height:26px;stroke:#fff;fill:none;stroke-width:2.5}
 
-  /* ---------- Top bar ---------- */
-  .top-bar{
-    position:sticky; top:0; z-index:50;
-    display:flex; align-items:center; justify-content:space-between;
-    padding:16px clamp(16px,4vw,48px);
-    background:rgba(11,13,16,0.85);
-    backdrop-filter:blur(10px);
-    border-bottom:1px solid var(--panel-border);
-  }
-  .back-link{
-    display:inline-flex; align-items:center; gap:8px;
-    font-family:'IBM Plex Mono',monospace;
-    font-size:12px; letter-spacing:0.08em; text-transform:uppercase;
-    color:var(--text-dim); text-decoration:none;
-    padding:8px 14px; border:1px solid var(--panel-border); border-radius:999px;
-    transition:border-color .2s ease, color .2s ease;
-  }
-  .back-link:hover{ color:var(--text); border-color:var(--amber); }
-  .top-bar .odo{
-    font-family:'IBM Plex Mono',monospace; font-size:12px; color:var(--text-dim);
-    letter-spacing:0.05em;
-  }
+/* tiles */
+.tile{position:relative;flex:0 0 var(--tile-w);aspect-ratio:16/9;border-radius:4px;overflow:hidden;background:var(--tile);scroll-snap-align:start;text-align:left;transition:transform .22s ease,box-shadow .22s ease}
+.tile.wide{flex-basis:calc(var(--tile-w)*1.3)}
+.tile img.pic{width:100%;height:100%;object-fit:cover;display:block}
+.tile.contain img.pic{object-fit:contain;background:#fff;padding:14px}
+.tile .ph{position:absolute;inset:0;display:flex;align-items:center;justify-content:center;color:var(--red-soft);background:#241416}
+.tile .ph svg{width:44px;height:44px;stroke:currentColor;fill:none;stroke-width:1.5;stroke-linecap:round;stroke-linejoin:round}
+.tile .cap{position:absolute;left:0;right:0;bottom:0;padding:28px 10px 9px;background:linear-gradient(0deg,rgba(0,0,0,.92),transparent)}
+.tile .cap .k{display:block;font-size:11px;font-weight:600;color:var(--red-soft);margin-bottom:1px}
+.tile .cap .t{display:block;font-family:'Barlow Condensed',sans-serif;font-weight:600;font-size:17px;line-height:1.15}
+.tile .cap .x{display:none;font-size:12px;color:#d2d2d2;margin-top:3px;line-height:1.3}
+.tile .logo-badge{position:absolute;left:8px;top:8px;width:30px;height:30px;border-radius:6px;background:#fff;object-fit:contain;padding:4px}
+.tile .now{position:absolute;right:8px;top:8px;background:var(--red);font-size:11px;font-weight:600;padding:2px 7px;border-radius:2px}
+.tile .bar{position:absolute;left:0;bottom:0;height:3px;background:var(--red);z-index:2}
+.tile .bar-bg{position:absolute;left:0;right:0;bottom:0;height:3px;background:rgba(255,255,255,.25);z-index:1}
+@media (hover:hover){
+  .tile:hover,.tile:focus-visible{transform:scale(1.14);z-index:5;box-shadow:0 12px 32px rgba(0,0,0,.7)}
+  .tile:hover .cap .x,.tile:focus-visible .cap .x{display:block}
+}
 
-  /* ---------- Hero ---------- */
-  .hero{
-    position:relative; z-index:1;
-    max-width:var(--container-w); margin:0 auto;
-    padding:clamp(48px,8vw,88px) clamp(16px,4vw,24px) clamp(24px,5vw,48px);
-    text-align:center;
-  }
-  .hero .eyebrow{
-    font-family:'IBM Plex Mono',monospace; font-size:12px;
-    letter-spacing:0.25em; text-transform:uppercase; color:var(--amber);
-    margin:0 0 14px;
-  }
-  .hero h1{
-    font-family:'Barlow Condensed',sans-serif; font-weight:700;
-    font-size:clamp(40px,7vw,72px); line-height:0.98; margin:0 0 16px;
-    letter-spacing:0.01em;
-  }
-  .hero p{
-    color:var(--text-dim); font-size:16px; line-height:1.6;
-    max-width:520px; margin:0 auto;
-  }
-  .hero .legend{
-    display:flex; flex-wrap:wrap; gap:10px 22px; justify-content:center;
-    margin-top:28px; font-family:'IBM Plex Mono',monospace; font-size:11px;
-    letter-spacing:0.05em; color:var(--text-dim);
-  }
-  .legend span{ display:inline-flex; align-items:center; gap:7px; }
-  .legend i{ width:9px; height:9px; border-radius:2px; display:inline-block; }
+/* top results */
+.top{flex:0 0 calc(var(--tile-w)*1.5);display:flex;align-items:center;scroll-snap-align:start}
+.top .n{font-family:'Barlow Condensed',sans-serif;font-weight:800;font-size:clamp(110px,12vw,170px);line-height:.8;color:var(--bg);-webkit-text-stroke:3px #6d6d6e;margin-right:-14px;position:relative;z-index:1}
+.top .c{flex:1;aspect-ratio:3/4;max-height:200px;background:var(--tile);border-radius:4px;padding:14px;display:flex;flex-direction:column;justify-content:flex-end;gap:4px;border-top:3px solid var(--red)}
+.top .c b{font-family:'Barlow Condensed',sans-serif;font-size:26px;font-weight:700;color:var(--red-soft)}
+.top .c span{font-size:14px;color:#e5e5e5;line-height:1.3}
 
-  /* ---------- Road wrap ---------- */
-  .road-wrap{
-    position:relative;
-    max-width:1100px; margin:0 auto;
-    padding:0 clamp(12px,4vw,24px) 40px;
-  }
-  #roadSvg{
-    position:absolute; top:0; left:0;
-    width:100%; height:100%;
-    z-index:0; pointer-events:none;
-  }
-  .nodes{ position:relative; z-index:1; }
+/* tags (story viewer) */
+.tags{display:flex;flex-wrap:wrap;gap:8px}
+.tag{font-size:12px;font-weight:500;padding:5px 11px;border-radius:999px;border:1px solid #555;color:#e5e5e5}
+.tag.por{border-color:rgba(255,77,85,.6);color:var(--red-soft);background:rgba(229,9,20,.1)}
+.tag.intern{border-color:#8a8a8a;color:#fff;background:rgba(255,255,255,.08)}
+.tag.result{border-color:var(--red);color:#fff;background:var(--red)}
 
-  .node{
-    position:relative;
-    display:flex;
-    justify-content:center;
-  }
 
-  /* marker (sign post) */
-  .marker{
-    position:absolute; left:50%; top:50%;
-    width:14px; height:14px; border-radius:50%;
-    background:var(--bg); border:3px solid var(--cyan);
-    transform:translate(-50%,-50%);
-    z-index:2; transition:transform .2s ease;
-  }
-  .node.college .marker{ border-color:var(--amber); width:16px; height:16px; }
-  .node.finish .marker{ border-color:var(--green); }
+/* footer */
+.end{padding:50px var(--gutter) 90px;text-align:center;color:var(--dim)}
+.end p{max-width:520px;margin:0 auto 20px;font-size:16px;line-height:1.5}
+.end a{display:inline-block;background:var(--red);color:#fff;text-decoration:none;font-weight:600;padding:11px 26px;border-radius:4px}
+.end a:hover{background:#f40612}
 
-  /* connector from marker to card */
-  .connector{
-    position:absolute; top:50%; height:2px; background:var(--road-edge);
-    z-index:1;
-  }
-
-  /* ---------- School sign (small) ---------- */
-  .sign{
-    background:var(--panel);
-    border:1px solid var(--panel-border);
-    border-radius:10px;
-    padding:14px 18px;
-    max-width:300px;
-    box-shadow:0 6px 20px rgba(0,0,0,0.25);
-  }
-  .sign.has-image{
-    display:flex; gap:14px; align-items:flex-start;
-    max-width:460px; padding:14px;
-  }
-  .sign.has-image-landscape{
-    display:flex; flex-direction:column; gap:12px;
-    max-width:420px; padding:14px;
-  }
-  .sign-thumb{
-    width:150px; aspect-ratio:3/4; object-fit:cover;
-    border-radius:8px; flex-shrink:0;
-    border:1px solid var(--panel-border);
-  }
-  .sign-thumb-wide{
-    width:100%; aspect-ratio:16/9; object-fit:cover;
-    border-radius:8px;
-    border:1px solid var(--panel-border);
-    display:block;
-  }
-  .sign-body{ flex:1; min-width:0; }
-  .sign .code{
-    font-family:'IBM Plex Mono',monospace; font-size:11px;
-    color:var(--cyan); letter-spacing:0.12em; margin-bottom:6px; display:block;
-  }
-  .sign h3{
-    font-family:'Barlow Condensed',sans-serif; font-size:20px; font-weight:600;
-    margin:0 0 6px; letter-spacing:0.01em;
-  }
-  .sign p{ margin:0; font-size:13px; line-height:1.5; color:var(--text-dim); }
-
-  /* ---------- College card (large) ---------- */
-  .milestone{
-    background:linear-gradient(180deg, var(--panel), #101317);
-    border:1px solid var(--panel-border);
-    border-radius:16px;
-    padding:26px 28px;
-    max-width:460px;
-    box-shadow:0 12px 34px rgba(0,0,0,0.35);
-    position:relative;
-  }
-  .milestone::before{
-    content:""; position:absolute; left:0; top:16px; bottom:16px; width:3px;
-    background:var(--amber); border-radius:3px;
-  }
-  .node.finish .milestone::before{ background:var(--green); }
-  .milestone .code{
-    font-family:'IBM Plex Mono',monospace; font-size:11px;
-    color:var(--amber); letter-spacing:0.14em; margin-bottom:8px; display:block;
-  }
-  .node.finish .milestone .code{ color:var(--green); }
-  .milestone h3{
-    font-family:'Barlow Condensed',sans-serif; font-size:26px; font-weight:700;
-    margin:0 0 10px;
-  }
-  .milestone p{ margin:0 0 14px; font-size:14.5px; line-height:1.6; color:var(--text-dim); }
-  .tags{ display:flex; flex-wrap:wrap; gap:8px; }
-  .tag{
-    font-family:'IBM Plex Mono',monospace; font-size:11.5px;
-    padding:6px 11px; border-radius:999px; letter-spacing:0.02em;
-    display:inline-flex; align-items:center; gap:6px;
-    border:1px solid var(--panel-border);
-  }
-  .tag.por{ color:var(--amber); border-color:rgba(224,160,32,0.4); background:rgba(224,160,32,0.08); }
-  .tag.intern{ color:var(--intern); border-color:rgba(63,169,245,0.45); background:rgba(63,169,245,0.1); font-weight:600; }
-  .tag.result{ color:var(--green); border-color:rgba(224,160,32,0.4); background:rgba(224,160,32,0.08); }
-
-  /* ---------- Chapter divider (overhead gantry sign) ---------- */
-  .gantry{
-    background:linear-gradient(180deg, #1a1e24, #101317);
-    border:1px solid var(--panel-border);
-    border-top:3px solid var(--lane);
-    border-radius:10px;
-    padding:18px 26px;
-    max-width:440px;
-    text-align:center;
-    box-shadow:0 10px 28px rgba(0,0,0,0.35);
-  }
-  .gantry .code{
-    font-family:'IBM Plex Mono',monospace; font-size:11px;
-    color:var(--lane); letter-spacing:0.16em; margin-bottom:8px; display:block;
-  }
-  .gantry h3{
-    font-family:'Barlow Condensed',sans-serif; font-size:24px; font-weight:700; margin:0 0 8px;
-  }
-  .gantry p{ margin:0; font-size:13.5px; line-height:1.55; color:var(--text-dim); }
-
-  /* ---------- Workshop-years project gallery ---------- */
-  .gallery-wrap{
-    width:100%;
-    background:linear-gradient(180deg, #12151a, #0e1013);
-    border:1px solid var(--panel-border);
-    border-radius:18px;
-    padding:clamp(20px,4vw,34px);
-    box-shadow:0 14px 36px rgba(0,0,0,0.35);
-  }
-  .gallery-head{ text-align:center; margin-bottom:22px; }
-  .gallery-head .code{
-    font-family:'IBM Plex Mono',monospace; font-size:11px;
-    color:var(--cyan); letter-spacing:0.16em; margin-bottom:8px; display:block;
-  }
-  .gallery-head h3{
-    font-family:'Barlow Condensed',sans-serif; font-size:28px; font-weight:700; margin:0 0 8px;
-  }
-  .gallery-head p{ margin:0; font-size:13.5px; color:var(--text-dim); max-width:520px; margin:0 auto; }
-
-  .project-grid{
-    display:grid;
-    grid-template-columns:repeat(auto-fit, minmax(190px, 1fr));
-    gap:14px;
-    margin-top:22px;
-  }
-  .project-card{
-    background:var(--panel);
-    border:1px solid var(--panel-border);
-    border-radius:12px;
-    padding:16px 16px 14px;
-    display:flex; flex-direction:column; gap:10px;
-    transition:border-color .2s ease, transform .2s ease;
-  }
-  .project-card:hover{ border-color:var(--cyan); transform:translateY(-2px); }
-  .project-icon{
-    width:44px; height:44px; border-radius:10px;
-    background:rgba(176,112,16,0.08);
-    border:1px solid rgba(176,112,16,0.3);
-    display:flex; align-items:center; justify-content:center;
-    color:var(--cyan);
-    overflow:hidden;
-  }
-  .project-icon svg{ width:24px; height:24px; stroke:currentColor; fill:none; stroke-width:1.6; stroke-linecap:round; stroke-linejoin:round; }
-  .project-icon.has-thumb{ background:transparent; border-color:var(--panel-border); }
-  .project-icon .project-thumb-img{ width:100%; height:100%; object-fit:cover; display:block; }
-  .project-card .pclass{
-    font-family:'IBM Plex Mono',monospace; font-size:10.5px; letter-spacing:0.08em;
-    color:var(--amber); text-transform:uppercase;
-  }
-  .project-card h4{
-    font-family:'Barlow Condensed',sans-serif; font-size:17px; font-weight:600; margin:0; line-height:1.25;
-  }
-  .project-card .ptheme{
-    font-size:12px; color:var(--text-dim); line-height:1.4; margin:0;
-  }
-  .project-card{ cursor:pointer; }
-  .project-card .tap-hint{
-    margin-top:2px; font-family:'IBM Plex Mono',monospace; font-size:10px;
-    letter-spacing:0.06em; color:var(--cyan); opacity:0.8; text-transform:uppercase;
-  }
-
-  /* ---------- College years — direct-view image grid (no click needed) ---------- */
-  .college-grid{
-    display:grid;
-    grid-template-columns:repeat(auto-fit, minmax(220px, 1fr));
-    gap:18px;
-    margin-top:22px;
-  }
-  .college-card{
-    background:linear-gradient(180deg, var(--panel), #101317);
-    border:1px solid var(--panel-border);
-    border-radius:14px;
-    overflow:hidden;
-    position:relative;
-    display:flex; flex-direction:column;
-    transition:border-color .2s ease, transform .2s ease;
-  }
-  .college-card:hover{ border-color:var(--amber); transform:translateY(-3px); }
-  .college-card.finish:hover{ border-color:var(--green); }
-  .college-card.has-intern-tag:hover{ border-color:var(--intern); }
-
-  .college-card .card-image-wrap{
-    position:relative;
-    width:100%; aspect-ratio:4/3;
-    background:#0e1013;
-  }
-  .college-card .card-image{
-    width:100%; height:100%; object-fit:cover; display:block;
-  }
-  .college-card.logo-only .card-image{
-    object-fit:contain; background:#fff; padding:22px;
-  }
-  .college-card .logo-badge{
-    position:absolute; left:10px; bottom:10px;
-    width:36px; height:36px; border-radius:8px; object-fit:contain;
-    background:#fff; padding:5px; flex-shrink:0;
-    border:1px solid rgba(255,255,255,0.15);
-    box-shadow:0 4px 10px rgba(0,0,0,0.35);
-  }
-  .college-card.logo-only .logo-badge{ display:none; }
-
-  .college-card::before{
-    content:""; position:absolute; left:0; top:16px; bottom:16px; width:3px;
-    background:var(--amber); border-radius:3px; z-index:2;
-  }
-  .college-card.finish::before{ background:var(--green); }
-  .college-card.has-intern-tag::before{ background:var(--intern); }
-
-  .college-card .card-info{ padding:14px 16px 16px; }
-  .college-card .code{
-    font-family:'IBM Plex Mono',monospace; font-size:11px;
-    color:var(--amber); letter-spacing:0.12em; display:block; margin-bottom:4px;
-  }
-  .college-card.finish .code{ color:var(--green); }
-  .college-card.has-intern-tag .code{ color:var(--intern); }
-  .college-card h4{
-    font-family:'Barlow Condensed',sans-serif; font-size:19px; font-weight:700; margin:0; line-height:1.2;
-  }
-  @media (max-width:600px){
-    .college-grid{ grid-template-columns:repeat(2, 1fr); gap:12px; }
-    .college-card .card-info{ padding:10px 12px 12px; }
-    .college-card h4{ font-size:15px; }
-  }
-  @media (max-width:420px){
-    .college-grid{ grid-template-columns:1fr; }
-  }
+@media (max-width:640px){
+  .nav{gap:14px}.nav-links{display:none}
+  .hero{min-height:78vh}
+  .rbtn{display:none}
+}
+@media (prefers-reduced-motion:reduce){html{scroll-behavior:auto}.tile{transition:none}}
 
   /* ---------- Story viewer (Instagram-highlight style) ---------- */
   .story-overlay{
@@ -370,7 +136,7 @@
     position:relative;
     width:min(420px, 100vw);
     height:min(760px, 100vh);
-    background:radial-gradient(circle at 50% 30%, #171b21, #0a0c0f 75%);
+    background:radial-gradient(circle at 50% 30%, #2b1114, #0b0b0b 75%);
     overflow:hidden;
   }
   .story-progress{
@@ -390,7 +156,7 @@
     padding:0 14px;
   }
   .story-tag{
-    font-family:'IBM Plex Mono',monospace; font-size:11px; color:#fff;
+    font-family:'Barlow',sans-serif; font-size:11px; color:#fff;
     letter-spacing:0.06em; background:rgba(255,255,255,0.12);
     padding:5px 10px; border-radius:999px;
   }
@@ -406,8 +172,8 @@
   }
   .story-icon-wrap{
     width:120px; height:120px; border-radius:28px;
-    background:rgba(176,112,16,0.1); border:1px solid rgba(176,112,16,0.35);
-    display:flex; align-items:center; justify-content:center; color:var(--cyan);
+    background:rgba(229,9,20,0.14); border:1px solid rgba(229,9,20,0.45);
+    display:flex; align-items:center; justify-content:center; color:var(--red-soft);
   }
   .story-icon-wrap svg{ width:64px; height:64px; stroke:currentColor; fill:none; stroke-width:1.4; stroke-linecap:round; stroke-linejoin:round; }
   .story-media{ max-width:100%; max-height:55vh; border-radius:16px; object-fit:cover; }
@@ -418,7 +184,7 @@
   }
   .story-logo{ max-width:100%; max-height:100%; object-fit:contain; }
   .story-body .pclass{
-    font-family:'IBM Plex Mono',monospace; font-size:11.5px; color:var(--amber); letter-spacing:0.1em;
+    font-family:'Barlow',sans-serif; font-size:11.5px; color:var(--red-soft); letter-spacing:0.1em;
   }
   .story-body h3{
     font-family:'Barlow Condensed',sans-serif; font-size:26px; font-weight:700; color:#fff; margin:0;
@@ -437,9 +203,9 @@
     transition:opacity .35s ease, transform .35s ease;
   }
   .story-tutorial.show{ opacity:1; animation:tutPulse 1.4s ease-in-out infinite; }
-  .story-tutorial .tt-arrow{ font-size:16px; line-height:1; color:var(--cyan); }
+  .story-tutorial .tt-arrow{ font-size:16px; line-height:1; color:var(--red-soft); }
   .story-tutorial span:last-child{
-    font-family:'IBM Plex Mono',monospace; font-size:11.5px; color:#fff;
+    font-family:'Barlow',sans-serif; font-size:11.5px; color:#fff;
     letter-spacing:0.03em; white-space:nowrap;
   }
   @keyframes tutPulse{
@@ -460,94 +226,62 @@
     opacity:0; transition:opacity .15s ease, transform .15s ease;
   }
   .speed-badge.show{ opacity:1; transform:translate(-50%, 0); }
-  .speed-badge svg{ width:13px; height:13px; stroke:var(--amber); fill:none; stroke-width:1.8; stroke-linecap:round; stroke-linejoin:round; }
+  .speed-badge svg{ width:13px; height:13px; stroke:var(--red-soft); fill:none; stroke-width:1.8; stroke-linecap:round; stroke-linejoin:round; }
   .speed-badge span{
-    font-family:'IBM Plex Mono',monospace; font-size:12px; color:#fff; letter-spacing:0.04em;
+    font-family:'Barlow',sans-serif; font-size:12px; color:#fff; letter-spacing:0.04em;
   }
   @media (max-width:480px){
     .story-stage{ width:100vw; height:100vh; }
   }
 
-  /* finish flag */
-  .flag{
-    display:inline-block; width:16px; height:16px; margin-right:6px;
-    background-image:
-      linear-gradient(45deg, #000 25%, transparent 25%), linear-gradient(-45deg, #000 25%, transparent 25%),
-      linear-gradient(45deg, transparent 75%, #000 75%), linear-gradient(-45deg, transparent 75%, #000 75%);
-    background-size:6px 6px;
-    background-position:0 0, 0 3px, 3px -3px, -3px 0px;
-    background-color:#fff;
-    border-radius:2px;
-    vertical-align:-3px;
-  }
-
-  /* ---------- Footer ---------- */
-  .end-cta{
-    max-width:var(--container-w); margin:0 auto;
-    text-align:center; padding:20px 20px 100px;
-  }
-  .end-cta p{ color:var(--text-dim); font-size:14px; margin-bottom:20px; }
-  .end-cta a.btn{
-    display:inline-flex; align-items:center; gap:8px;
-    font-family:'IBM Plex Mono',monospace; font-size:12px; letter-spacing:0.08em; text-transform:uppercase;
-    background:var(--amber); color:#0A0C10; text-decoration:none; font-weight:600;
-    padding:12px 22px; border-radius:999px;
-  }
-
-  /* ---------- Responsive ---------- */
-  @media (max-width:640px){
-    .sign{ max-width:78vw; }
-    .milestone{ max-width:82vw; padding:20px 20px; }
-    .milestone h3{ font-size:22px; }
-    .node{ min-height:150px; }
-  }
-
-  @media (prefers-reduced-motion: reduce){
-    html{ scroll-behavior:auto; }
-  }
 </style>
 </head>
 <body>
 
-  <div class="top-bar">
-    <a href="index.html" class="back-link">&larr; Back to portfolio</a>
-    <span class="odo">CLASS I &rarr; PRESENT</span>
-  </div>
+<header class="nav" id="nav">
+  <a class="logo" id="logo" href="#top" aria-label="Jounce Junkie, back to top"><span class="logo-txt">ARPIT</span><img class="lg-base" id="logoBase" alt="" hidden><img class="lg-wave" id="logoWave" alt="" hidden></a>
+  <a class="nav-back" href="https://arpitmalik711.github.io/Vehicle_system_development_engineer/"><svg class="hi" viewBox="0 0 24 24" aria-hidden="true"><path d="M3 11.5L12 4l9 7.5"/><path d="M5 10v10h5v-6h4v6h5V10"/></svg>Back to Home</a>
+</header>
 
-  <section class="hero">
-    <p class="eyebrow">The Route</p>
+<section class="hero" id="top">
+  <div class="hero-in">
     <h1>The Journey<br>So Far</h1>
-  </section>
-
-  <div class="road-wrap" id="roadWrap">
-    <svg id="roadSvg"></svg>
-    <div class="nodes" id="nodes"></div>
-  </div>
-
-  <div class="story-overlay" id="storyOverlay">
-    <div class="story-stage">
-      <div class="story-progress" id="storyProgress"></div>
-      <div class="story-topbar">
-        <span class="story-tag" id="storyTag">THE WORKSHOP YEARS</span>
-        <button class="story-close" id="storyClose" aria-label="Close">&times;</button>
-      </div>
-      <div class="story-body" id="storyBody"></div>
-      <div class="story-nav prev" id="storyPrev"></div>
-      <div class="story-nav next" id="storyNext"></div>
-      <div class="story-tutorial" id="storyTutorial">
-        <span>Tap to skip ahead</span><span class="tt-arrow">&rsaquo;</span>
-      </div>
-      <div class="speed-badge" id="speedBadge">
-        <svg viewBox="0 0 24 24"><path d="M5 4l8 8-8 8V4z"/><path d="M13 4l8 8-8 8V4z"/></svg>
-        <span>2x speed</span>
-      </div>
+    <div class="hero-meta" id="heroMeta"></div>
+    <p>From a cardboard truck in Class 5 to Chief Design Engineer. Fourth year, engine still running.</p>
+    <div class="hero-btns">
+      <button class="btn play" id="heroPlay"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M6 4l14 8-14 8z"/></svg>Play story</button>
+      <a class="btn info" href="#r-college">More info</a>
     </div>
   </div>
+</section>
 
-  <section class="end-cta">
-    <p>Fourth year, engine still running — open to CAE and multi-body-dynamics vehicle-dynamics roles.</p>
-    <a class="btn" href="https://arpitmalik711.github.io/Vehicle_system_development_engineer/">Back to the garage &rarr;</a>
-  </section>
+<main id="rows"></main>
+
+<section class="end">
+  <p>Open to CAE and multi-body-dynamics vehicle-dynamics roles.</p>
+  <a class="home-btn" href="https://arpitmalik711.github.io/Vehicle_system_development_engineer/"><svg class="hi" viewBox="0 0 24 24" aria-hidden="true"><path d="M3 11.5L12 4l9 7.5"/><path d="M5 10v10h5v-6h4v6h5V10"/></svg>Back to Home</a>
+</section>
+
+
+<div class="story-overlay" id="storyOverlay">
+  <div class="story-stage">
+    <div class="story-progress" id="storyProgress"></div>
+    <div class="story-topbar">
+      <span class="story-tag" id="storyTag"></span>
+      <button class="story-close" id="storyClose" aria-label="Close">&times;</button>
+    </div>
+    <div class="story-body" id="storyBody"></div>
+    <div class="story-nav prev" id="storyPrev"></div>
+    <div class="story-nav next" id="storyNext"></div>
+    <div class="story-tutorial" id="storyTutorial">
+      <span>Tap to skip ahead</span><span class="tt-arrow">&rsaquo;</span>
+    </div>
+    <div class="speed-badge" id="speedBadge">
+      <svg viewBox="0 0 24 24"><path d="M5 4l8 8-8 8V4z"/><path d="M13 4l8 8-8 8V4z"/></svg>
+      <span>2x speed</span>
+    </div>
+  </div>
+</div>
 
 <script>
 const stops = [
@@ -674,188 +408,162 @@ function iconSvg(key){
   return `<svg viewBox="0 0 32 32">${ICONS[key] || ICONS.truck}</svg>`;
 }
 
-const svg = document.getElementById('roadSvg');
-const nodesEl = document.getElementById('nodes');
-const wrap = document.getElementById('roadWrap');
 
-function render(){
-  nodesEl.innerHTML = '';
-  svg.innerHTML = '';
+ICONS.tv = '<rect x="4" y="8" width="24" height="16" rx="2"/><path d="M12 28h8M16 24v4"/>';
 
-  const width = wrap.clientWidth;
-  const isMobile = width < 640;
-  const amplitude = isMobile ? 0 : Math.min(150, width*0.16);
-  const wavelength = 640;
-  const centerX = width/2;
+/* ---------- Netflix-style rows built from the same data ---------- */
+const HERO_IMG = 'https://res.cloudinary.com/fvtkc10l/image/upload/v1784715844/IMG_2148_qeywnw.jpg';
+const rowsEl = document.getElementById('rows');
+const esc = (s) => String(s).replace(/&/g,'&amp;').replace(/"/g,'&quot;').replace(/</g,'&lt;');
 
-  // --- pass 1: lay out every node in normal document flow so heights are real ---
-  const rows = []; // {stop, rowEl, cardEl, markerEl}
+const school = stops.filter(s => s.kind === 'school');
+const workshop = stops.find(s => s.kind === 'gallery');
+const college = stops.find(s => s.kind === 'collegeGallery');
 
-  stops.forEach((s) => {
-    const node = document.createElement('div');
-    node.className = 'node ' + s.kind + (s.finish ? ' finish' : '');
-    node.style.cssText = 'position:relative; display:flex; justify-content:center; padding:' +
-      (s.kind === 'gallery' || s.kind === 'collegeGallery' ? '28px 0' : s.kind === 'divider' ? '26px 0' : '18px 0') + ';';
+// story items: every tile opens the same story viewer
+const schoolItems = school.map(s => ({
+  title:s.title, cls:s.code, desc:s.desc, icon:'tv',
+  media: s.image ? [{type:'image', src:s.image}] : [{type:'icon'}]
+}));
+const collegeItems = college.items.map(p => ({
+  title:p.title, cls:p.code, desc:p.desc, tags:p.tags, icon:p.icon,
+  media:[{type:'image', src:p.image, isLogo:!!p.logoOnly}]
+}));
 
-    let cardEl;
-    if(s.kind === 'school'){
-      cardEl = document.createElement('div');
-      const isLandscape = s.image && s.orientation === 'landscape';
-      cardEl.className = 'sign' + (s.image ? (isLandscape ? ' has-image-landscape' : ' has-image') : '');
-      if(!s.image){
-        cardEl.innerHTML = `<span class="code">${s.code}</span><h3>${s.title}</h3><p>${s.desc}</p>`;
-      } else if(isLandscape){
-        cardEl.innerHTML = `<img class="sign-thumb-wide" src="${s.image}" alt="${s.title}">
-           <div class="sign-body"><span class="code">${s.code}</span><h3>${s.title}</h3><p>${s.desc}</p></div>`;
-      } else {
-        cardEl.innerHTML = `<img class="sign-thumb" src="${s.image}" alt="${s.title}">
-           <div class="sign-body"><span class="code">${s.code}</span><h3>${s.title}</h3><p>${s.desc}</p></div>`;
-      }
-    } else if(s.kind === 'divider'){
-      cardEl = document.createElement('div');
-      cardEl.className = 'gantry';
-      cardEl.innerHTML = `<span class="code">${s.code}</span><h3>${s.title}</h3><p>${s.desc}</p>`;
-    } else if(s.kind === 'gallery'){
-      cardEl = document.createElement('div');
-      cardEl.className = 'gallery-wrap';
-      const gridHTML = s.projects.map((p, idx) => {
-        const firstImg = getMediaList(p).find(m => m.type === 'image');
-        const thumbHTML = firstImg
-          ? `<img class="project-thumb-img" src="${firstImg.src}" alt="${p.title}">`
-          : iconSvg(p.icon);
-        return `
-        <div class="project-card" data-index="${idx}">
-          <div class="project-icon${firstImg ? ' has-thumb' : ''}">${thumbHTML}</div>
-          <span class="pclass">${p.cls}</span>
-          <h4>${p.title}</h4>
-          <p class="ptheme">${p.theme}</p>
-          <span class="tap-hint">Tap to view &rarr;</span>
-        </div>`;
-      }).join('');
-      cardEl.innerHTML = `
-        <div class="gallery-head">
-          <span class="code">${s.code}</span>
-          <h3>${s.title}</h3>
-          <p>${s.desc}</p>
-        </div>
-        <div class="project-grid">${gridHTML}</div>`;
-      cardEl.querySelector('.project-grid').addEventListener('click', (e) => {
-        const card = e.target.closest('.project-card');
-        if(card) openStory(s.projects, Number(card.dataset.index));
-      });
-    } else if(s.kind === 'collegeGallery'){
-      cardEl = document.createElement('div');
-      cardEl.className = 'gallery-wrap';
-      const gridHTML = s.items.map((p, idx) => {
-        const hasIntern = (p.tags||[]).some(t => t.t === 'intern');
-        return `
-        <div class="college-card ${p.finish ? 'finish' : ''} ${hasIntern ? 'has-intern-tag' : ''} ${p.logoOnly ? 'logo-only' : ''}">
-          <div class="card-image-wrap">
-            <img class="card-image" src="${p.image}" alt="${p.title}">
-            ${p.logo ? `<img class="logo-badge" src="${p.logo}" alt="${p.title} company logo">` : ''}
-          </div>
-          <div class="card-info">
-            <span class="code">${p.finish ? '<span class="flag"></span>' : ''}${p.code}</span>
-            <h4>${p.title}</h4>
-          </div>
-        </div>`;
-      }).join('');
-      cardEl.innerHTML = `
-        <div class="gallery-head">
-          <span class="code">${s.code}</span>
-          <h3>${s.title}</h3>
-          <p>${s.desc}</p>
-        </div>
-        <div class="college-grid">${gridHTML}</div>`;
-    } else {
-      cardEl = document.createElement('div');
-      cardEl.className = 'milestone';
-      const tagHTML = (s.tags||[]).map(tag => `<span class="tag ${tag.t}">${tag.l}</span>`).join('');
-      cardEl.innerHTML = `
-        <span class="code">${s.finish ? '<span class="flag"></span>' : ''}${s.code}</span>
-        <h3>${s.title}</h3>
-        <p>${s.desc}</p>
-        <div class="tags">${tagHTML}</div>`;
-    }
-    if(s.kind !== 'gallery' && s.kind !== 'collegeGallery'){
-      cardEl.style.maxWidth = s.kind === 'divider' ? '440px' : (s.image ? (s.orientation === 'landscape' ? '420px' : '460px') : '300px');
-    }
-
-    node.appendChild(cardEl);
-    nodesEl.appendChild(node);
-    rows.push({stop: s, rowEl: node, cardEl});
-  });
-
-  // --- pass 2: measure real positions, place markers and apply wave drift ---
-  rows.forEach(row => {
-    const s = row.stop;
-    const centerY = row.rowEl.offsetTop + row.rowEl.offsetHeight/2;
-    const markerX = centerX + amplitude*Math.sin(2*Math.PI*centerY/wavelength);
-    const useCenter = isMobile || s.kind === 'divider' || s.kind === 'gallery' || s.kind === 'collegeGallery';
-    const drift = useCenter ? 0 : (markerX - centerX) * 0.5;
-
-    if(s.kind !== 'gallery'){
-      row.cardEl.style.transform = `translateX(${drift}px)`;
-    }
-
-    const marker = document.createElement('div');
-    marker.className = 'marker';
-    marker.style.position = 'absolute';
-    marker.style.left = (useCenter ? centerX : markerX) + 'px';
-    marker.style.top = centerY + 'px';
-    marker.style.transform = 'translate(-50%,-50%)';
-    if(s.kind === 'divider' || s.kind === 'gallery' || s.kind === 'collegeGallery') marker.style.borderColor = 'var(--lane)';
-    nodesEl.appendChild(marker);
-  });
-
-  const totalHeight = nodesEl.offsetHeight;
-  wrap.style.minHeight = totalHeight + 'px';
-  svg.setAttribute('viewBox', `0 0 ${width} ${totalHeight}`);
-  svg.setAttribute('width', width);
-  svg.setAttribute('height', totalHeight);
-
-  // draw road: base asphalt stroke + dashed lane line, sampled along the sine wave
-  let d = '';
-  const step = 6;
-  for(let y = 0; y <= totalHeight; y += step){
-    const x = centerX + amplitude*Math.sin(2*Math.PI*y/wavelength);
-    d += (y === 0 ? 'M' : 'L') + x.toFixed(1) + ',' + y.toFixed(1) + ' ';
-  }
-
-  const ns = 'http://www.w3.org/2000/svg';
-  const roadPath = document.createElementNS(ns,'path');
-  roadPath.setAttribute('d', d);
-  roadPath.setAttribute('fill','none');
-  roadPath.setAttribute('stroke','var(--road)');
-  roadPath.setAttribute('stroke-width', isMobile ? 10 : 22);
-  roadPath.setAttribute('stroke-linecap','round');
-  roadPath.setAttribute('stroke-linejoin','round');
-
-  const edgePathL = roadPath.cloneNode();
-  edgePathL.setAttribute('stroke','var(--road-edge)');
-  edgePathL.setAttribute('stroke-width', isMobile ? 11 : 23);
-  edgePathL.setAttribute('opacity','0.5');
-
-  const lanePath = document.createElementNS(ns,'path');
-  lanePath.setAttribute('d', d);
-  lanePath.setAttribute('fill','none');
-  lanePath.setAttribute('stroke','var(--lane)');
-  lanePath.setAttribute('stroke-width', 2);
-  lanePath.setAttribute('stroke-dasharray','10 12');
-  lanePath.setAttribute('stroke-linecap','round');
-  lanePath.setAttribute('opacity','0.85');
-
-  svg.appendChild(edgePathL);
-  svg.appendChild(roadPath);
-  svg.appendChild(lanePath);
+function tile(o){
+  const pic = o.img
+    ? `<img class="pic" src="${esc(o.img)}" alt="" loading="lazy">`
+    : `<div class="ph">${iconSvg(o.icon)}</div>`;
+  return `<button class="tile${o.wide?' wide':''}${o.contain?' contain':''}" data-set="${o.set}" data-i="${o.i}" aria-label="${esc(o.title)}">
+    ${pic}
+    ${o.logo ? `<img class="logo-badge" src="${esc(o.logo)}" alt="">` : ''}
+    ${o.now ? '<span class="now">Now</span>' : ''}
+    <div class="cap"><span class="k">${esc(o.kicker)}</span><span class="t">${esc(o.title)}</span>${o.extra ? `<span class="x">${esc(o.extra)}</span>` : ''}</div>
+    ${o.progress != null ? `<div class="bar-bg"></div><div class="bar" style="width:${o.progress}%"></div>` : ''}
+  </button>`;
 }
 
-render();
-let resizeTimer;
-window.addEventListener('resize', () => {
-  clearTimeout(resizeTimer);
-  resizeTimer = setTimeout(render, 150);
+function addRow(id, title, sub, inner){
+  const sec = document.createElement('section');
+  sec.className = 'row'; sec.id = id;
+  sec.innerHTML = `<h2>${title}${sub ? `<small>${sub}</small>` : ''}</h2>
+    <button class="rbtn prev hide" aria-label="Scroll left"><svg viewBox="0 0 24 24"><path d="M15 4l-8 8 8 8"/></svg></button>
+    <div class="rail">${inner}</div>
+    <button class="rbtn next" aria-label="Scroll right"><svg viewBox="0 0 24 24"><path d="M9 4l8 8-8 8"/></svg></button>`;
+  rowsEl.appendChild(sec);
+  const rail = sec.querySelector('.rail'), prev = sec.querySelector('.prev'), next = sec.querySelector('.next');
+  const sync = () => {
+    prev.classList.toggle('hide', rail.scrollLeft < 8);
+    next.classList.toggle('hide', rail.scrollLeft + rail.clientWidth >= rail.scrollWidth - 8);
+  };
+  prev.onclick = () => rail.scrollBy({left:-rail.clientWidth*0.8, behavior:'smooth'});
+  next.onclick = () => rail.scrollBy({left: rail.clientWidth*0.8, behavior:'smooth'});
+  rail.addEventListener('scroll', sync, {passive:true});
+  window.addEventListener('resize', sync);
+  sync();
+}
+
+const sets = {school:schoolItems, workshop:workshop.projects, college:collegeItems};
+
+// 1. where it started
+addRow('r-start', 'Where it started', 'Class I – IX',
+  schoolItems.map((s,i) => tile({set:'school', i, title:s.title, kicker:s.cls, extra:s.desc, img:school[i].image, icon:'tv'})).join(''));
+
+// 2. workshop years
+addRow('r-workshop', workshop.title, 'Class IV – IX',
+  workshop.projects.map((p,i) => {
+    const first = getMediaList(p).find(m => m.type === 'image');
+    return tile({set:'workshop', i, title:p.title, kicker:p.cls, extra:p.theme, img:first && first.src, icon:p.icon});
+  }).join(''));
+
+// 3. college years
+addRow('r-college', college.title, 'NSUT 2023 – now',
+  college.items.map((p,i) => tile({set:'college', i, wide:true, contain:p.logoOnly, title:p.title, kicker:p.code,
+    extra:(p.tags||[]).map(t=>t.l).join(' · '), img:p.image, icon:p.icon, logo:p.logoOnly ? '' : p.logo})).join(''));
+
+// 4. internships ("continue watching")
+const internIdx = college.items.map((p,i)=>i).filter(i => (college.items[i].tags||[]).some(t => t.t === 'intern'));
+addRow('r-intern', 'Continue watching', 'Internships',
+  internIdx.map(i => {
+    const p = college.items[i];
+    return tile({set:'college', i, wide:true, title:p.title, kicker:p.code,
+      extra:p.tags.find(t=>t.t==='intern').l.replace(/^Internship — /,''), img:p.image, icon:p.icon, logo:p.logo,
+      now:!!p.finish, progress:p.finish ? 65 : 100});
+  }).join(''));
+
+// tile clicks open the story viewer
+rowsEl.addEventListener('click', (e) => {
+  const t = e.target.closest('.tile');
+  if(t) openStory(sets[t.dataset.set], Number(t.dataset.i));
 });
+
+/* hero */
+document.getElementById('top').style.backgroundImage = `url("${HERO_IMG}")`;
+document.getElementById('heroMeta').innerHTML = '<b>Class IV → Present</b>';
+document.getElementById('heroPlay').addEventListener('click', () => openStory([...schoolItems, ...workshop.projects, ...collegeItems], 0));
+
+
+/* logo: two stacked layers (base + wave) */
+const LOGO_BASE = 'https://res.cloudinary.com/fvtkc10l/image/upload/v1792699524/logo-base_iakrjv.webp';
+const LOGO_WAVE = 'https://res.cloudinary.com/fvtkc10l/image/upload/v1792699530/logo-wave_idngt5.webp';
+(function(){
+  const b = document.getElementById('logoBase'), w = document.getElementById('logoWave'), a = document.getElementById('logo');
+  b.onload = () => { b.hidden = false; w.hidden = false; a.classList.add('has-img'); };
+  b.onerror = () => { b.hidden = true; w.hidden = true; };
+  w.src = LOGO_WAVE; b.src = LOGO_BASE;
+})();
+
+
+/* swipe hint on the first row: nudge the row, show a "Swipe" chip with a moving finger */
+(function(){
+  const row = document.getElementById('r-start');
+  const touch = matchMedia('(hover: none)').matches;
+  const force = /[?&]hint=1/.test(location.search);
+  if(!row) return;
+  try{ if(!force && sessionStorage.getItem('swipeHintSeen')) return; }catch(e){}
+  const calm = matchMedia('(prefers-reduced-motion: reduce)').matches;
+  const rail = row.querySelector('.rail');
+  row.querySelector('h2').insertAdjacentHTML('beforeend',
+    '<span class="swipe-chip" id="swipeChip" hidden><svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="16" cy="12" r="4" fill="currentColor" stroke="none"/><path d="M10 12H3M6 8l-3 4 3 4"/></svg>' + (touch ? 'Swipe' : 'Scroll') + '</span>');
+  const chip = document.getElementById('swipeChip');
+  let done = false; const timers = [];
+  const later = (f, ms) => timers.push(setTimeout(f, ms));
+  function nudge(){
+    if(done || calm) return;
+    rail.style.scrollSnapType = 'none';
+    rail.scrollTo({left:52, behavior:'smooth'});
+    later(() => { if(!done) rail.scrollTo({left:0, behavior:'smooth'}); }, 700);
+    later(() => { rail.style.scrollSnapType = ''; }, 1500);
+  }
+  function stop(){
+    if(done) return; done = true;
+    timers.forEach(clearTimeout);
+    chip.classList.remove('show');
+    rail.style.scrollSnapType = '';
+    try{ sessionStorage.setItem('swipeHintSeen','1'); }catch(e){}
+  }
+  function start(){
+    if(rail.scrollWidth <= rail.clientWidth + 10) return;
+    chip.hidden = false;
+    requestAnimationFrame(() => chip.classList.add('show'));
+    later(nudge, 600); later(nudge, 3200); later(stop, 6500);
+  }
+  document.querySelectorAll('.rail').forEach(r => ['touchstart','pointerdown','wheel'].forEach(ev => r.addEventListener(ev, stop, {passive:true})));
+  const io = new IntersectionObserver(es => { if(es[0].isIntersecting){ io.disconnect(); start(); } }, {threshold:0.3});
+  io.observe(row);
+})();
+
+/* nav: solid after scroll */
+const navEl = document.getElementById('nav');
+const navLinks = [...document.querySelectorAll('.nav-links a')];
+function onScroll(){
+  navEl.classList.toggle('solid', window.scrollY > 40);
+  let cur = null;
+  navLinks.forEach(a => { const r = document.querySelector(a.getAttribute('href')); if(r && r.getBoundingClientRect().top < innerHeight*0.45) cur = a; });
+  navLinks.forEach(a => a.classList.toggle('on', a === cur));
+}
+window.addEventListener('scroll', onScroll, {passive:true});
+onScroll();
 
 /* ---------- Story viewer ---------- */
 const storyOverlay = document.getElementById('storyOverlay');
